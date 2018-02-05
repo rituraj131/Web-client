@@ -30,11 +30,14 @@ int main(int argc, char **argv)
 
 		string threadStr(argv[1]), file_name(argv[2]);
 	
-		thread_count = utility.validateThreadCount(threadStr);
+		thread_count = utility.getThreadCount(threadStr);
 
 		utility.validateFileExistence(file_name);
 
 		cout << "Opened " << file_name << " with size " << utility.filesize(file_name) << endl;
+
+		string fileContent = utility.readFile(file_name);
+		std::vector<std::string> urlList = utility.split(fileContent, "\n");
 
 		GetAndParse getAndParse;
 		UrlValidator validate;

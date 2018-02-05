@@ -23,5 +23,6 @@ public:
 	vector<string> split(std::string s, string delimiter);
 	void printURLList(vector<string> list);
 	vector<UrlParts> getURLList(vector<string> list);
+	int getThreadCount(std::string count);
 };
 

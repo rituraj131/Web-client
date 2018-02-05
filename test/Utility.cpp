@@ -7,6 +7,17 @@ std::ifstream::pos_type Utility::filesize(std::string filename)
     return in.tellg(); 
 }
 
+int Utility::getThreadCount(std::string count) {
+	try {
+		int thread_count = stoi(count);
+		return thread_count;
+	}
+	catch (std::invalid_argument& e) {
+		cout << "\nPlease try again with Integer value for thread count! Exiting..\n";
+		exit(0);
+	}
+}
+
 int Utility::validateThreadCount(std::string count) {
 	try {
 		int thread_count = stoi(count);
@@ -56,8 +67,6 @@ vector<string> Utility::split(std::string s, string delimiter) {
 	while ((pos = s.find(delimiter)) != std::string::npos) {
 		token = s.substr(0, pos);
 		list.push_back(token);
-		if(list.size()%1000 == 0)
-			cout << "list size: " << list.size() << endl;
 		s.erase(0, pos + delimiter.length());
 	}
 
