@@ -59,33 +59,24 @@ std::string Utility::readFile(std::string file_name) {
 }
 
 //reference from https://stackoverflow.com/a/14266139/4135902
-vector<string> Utility::split(std::string s, string delimiter) {
-	vector<string> list;
+queue<string> Utility::split(std::string s, string delimiter) {
+	queue<string> q;
 
 	size_t pos = 0;
 	std::string token;
 	while ((pos = s.find(delimiter)) != std::string::npos) {
 		token = s.substr(0, pos);
-		list.push_back(token);
+		q.push(token);
 		s.erase(0, pos + delimiter.length());
 	}
 
-	list.push_back(s);
+	q.push(s);
 
-	return list;
+	return q;
 }
 
 void Utility::printURLList(vector<string> list) {
 	for (int i = 0; i < list.size(); i++)
 		cout << list.at(i) << endl;
-}
-
-vector<UrlParts> Utility::getURLList(vector<string> list) {
-	UrlValidator validate;
-	vector<UrlParts> urlPartsList;
-	for (int i = 0; i < list.size(); i++)
-		urlPartsList.push_back(validate.urlParser(list.at(i)));
-
-	return urlPartsList;
 }
 

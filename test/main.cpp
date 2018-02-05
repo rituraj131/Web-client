@@ -1,15 +1,19 @@
 #include <iostream>
-#include <vector>
 #include<string>
 #include "UrlValidator.h"
 #include "GetAndParse.h"
 #include "Utility.h";
+#include "StatsHandler.h"
 #include <fstream>
+#include <thread>
 using namespace std;
+
+void statsThreadFunc(StatsHandler &);
+void crawlerThreadFunc(string, StatsHandler &);
 
 int main(int argc, char **argv)
 {
-	cout << "hello World!" << argc << endl;
+	cout << "hello World! argc: " << argc << endl;
 	if (argc == 2) {
 		std::string url;
 		cout << "Input URL: ";
@@ -37,40 +41,46 @@ int main(int argc, char **argv)
 		cout << "Opened " << file_name << " with size " << utility.filesize(file_name) << endl;
 
 		string fileContent = utility.readFile(file_name);
-		std::vector<std::string> urlList = utility.split(fileContent, "\n");
+		queue<string> urlListQueue = utility.split(fileContent, "\n");
 
-		GetAndParse getAndParse;
-		UrlValidator validate;
-		int urlCount = 0;
+		StatsHandler stats;
 
-		std::ifstream ifs(file_name);
-		if (ifs) {
-			string url;
-			
-			while (std::getline(ifs, url)) {
-				if (url.length() == 0) continue;
+		thread statsThread(statsThreadFunc, ref(stats));
+		cout << urlListQueue.size() << endl;
 
-				cout << "URL: " << url << endl;
-				UrlParts urlParts = validate.urlParser(url);
-				if (urlParts.isValid == -10)//some failure in parsing observed!
-					continue;
+		
+		thread *crawlerThreads = new thread[thread_count];
 
-				getAndParse.getAndParseHTML(urlParts, false);
-				urlCount++;
+		while (urlListQueue.size() != 0) {
+			int tCount = 0;
+			for (int i = 0; i < thread_count && i < urlListQueue.size(); i++) {
+				string url = urlListQueue.front();
+				urlListQueue.pop();
+				tCount++;
+				crawlerThreads[i] = thread(crawlerThreadFunc, url, ref(stats));
+			}
+
+			for (int i = 0; i < tCount; i++) {
+				crawlerThreads[i].join();
 			}
 		}
-		else {
-			cout << "Unable to read file, Exiting!" << endl;
-			exit(0);
-		}
 
-		if (urlCount == 0) {
-			cout<<"No URLs found"<<endl;
-		}
+		statsThread.join();
+
+		cout << stats.getBytes() << endl;
 	}
 	else {
 		cout << "Wrong input!" << endl;
 	}
 	cout << endl;
 	return 1; 
+}
+
+void statsThreadFunc(StatsHandler &stats) {
+	cout << "Started Stats Thread...."<<endl;
+}
+
+void crawlerThreadFunc(string url, StatsHandler &stats) {
+	cout << "Crawler thread!" << endl;
+	stats.incrementBytes(10);
 }

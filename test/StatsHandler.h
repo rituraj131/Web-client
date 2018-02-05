@@ -20,7 +20,6 @@ public:
 	void incrementBytes(int count);
 	void incrementCrawledURLCount(int count);
 	void incrementTotalLinks(int count);
-	void incrementExtractedURLCount(int count);
 
 	int getActiveThreadCount();
 	int getQueueCount();

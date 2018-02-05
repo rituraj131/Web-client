@@ -1,4 +1,12 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (winsock-test.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  GetAndParse.cpp
+  main.cpp
 f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+f:\visualstudio\csce612-hw1p3\test\main.cpp(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+f:\visualstudio\csce612-hw1p3\test\main.cpp(56): warning C4018: '<': signed/unsigned mismatch
+GetAndParse.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+HTMLParser_debug_win32.lib(HTMLParserBase.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_debug_win32.lib(HTMLParserBase.obj)' or at 'F:\VisualStudio\CSCE612-HW1P3\Debug\HTMLParser.pdb'; linking object as if no debug info
+HTMLParser_debug_win32.lib(IRLBuffer.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_debug_win32.lib(IRLBuffer.obj)' or at 'F:\VisualStudio\CSCE612-HW1P3\Debug\HTMLParser.pdb'; linking object as if no debug info
+HTMLParser_debug_win32.lib(IRLparser.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_debug_win32.lib(IRLparser.obj)' or at 'F:\VisualStudio\CSCE612-HW1P3\Debug\HTMLParser.pdb'; linking object as if no debug info
+HTMLParser_debug_win32.lib(stdafx.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_debug_win32.lib(stdafx.obj)' or at 'F:\VisualStudio\CSCE612-HW1P3\Debug\HTMLParser.pdb'; linking object as if no debug info
+HTMLParser_debug_win32.lib(URL.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_debug_win32.lib(URL.obj)' or at 'F:\VisualStudio\CSCE612-HW1P3\Debug\HTMLParser.pdb'; linking object as if no debug info
   test.vcxproj -> F:\VisualStudio\CSCE612-HW1P3\Debug\web-client.exe

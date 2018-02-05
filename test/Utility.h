@@ -2,7 +2,7 @@
 #include <fstream>
 #include<string>
 #include<iostream>
-#include<vector>
+#include <queue>
 #include "UrlParts.h"
 #include "UrlValidator.h"
 #ifdef _WIN32
@@ -20,9 +20,8 @@ public:
 	int validateThreadCount(std::string);
 	bool validateFileExistence(const std::string &Filename);
 	std::string readFile(std::string file_name);
-	vector<string> split(std::string s, string delimiter);
+	queue<string> split(std::string s, string delimiter);
 	void printURLList(vector<string> list);
-	vector<UrlParts> getURLList(vector<string> list);
 	int getThreadCount(std::string count);
 };
 

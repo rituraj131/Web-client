@@ -16,7 +16,6 @@ StatsHandler::StatsHandler()
 	bytes = 0;
 }
 
-
 StatsHandler::~StatsHandler()
 {
 }
@@ -63,10 +62,6 @@ void StatsHandler::incrementCrawledURLCount(int count) {
 
 void StatsHandler::incrementTotalLinks(int count) {
 	totalLinks += count;
-}
-
-void StatsHandler::incrementExtractedURLCount(int count) {
-	extractedURLCount += count;
 }
 
 int StatsHandler::getActiveThreadCount() {
