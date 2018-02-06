@@ -1,5 +1,5 @@
 #include "UrlValidator.h"
-#include <iostream>
+
 using namespace std;
 
 size_t getPatternPos(string, string);
@@ -87,7 +87,7 @@ string getQuery(string url) {
 }
 
 UrlParts UrlValidator::urlParser(string url) {
-	cout << "\t  Parsing URL... ";
+	//cout << "\t  Parsing URL... ";
 	UrlParts urlParts;
 
 	int port_no;
@@ -112,7 +112,7 @@ UrlParts UrlValidator::urlParser(string url) {
 
 	//exit for incorrect scheme
 	if (scheme.size() > 0 && scheme.compare("http") != 0) {
-		cout << "failed with invalid scheme" << endl;
+		//cout << "failed with invalid scheme" << endl;
 		urlParts.isValid = -10;
 		return urlParts;
 	}
@@ -136,7 +136,7 @@ UrlParts UrlValidator::urlParser(string url) {
 
 	//exit for wrong port
 	if (port_no == -1) {
-		cout << "failed with invalid port" << endl;
+		//cout << "failed with invalid port" << endl;
 		urlParts.isValid = -10;
 		return urlParts;
 	}
@@ -154,7 +154,7 @@ UrlParts UrlValidator::urlParser(string url) {
 	urlParts.path = path;
 	urlParts.query = query;
 
-	cout << "host " << urlParts.host << ", port " << urlParts.port_no <<
+	/*cout << "host " << urlParts.host << ", port " << urlParts.port_no <<
 		", request /" << urlParts.path << (urlParts.query.size() > 0 ? "?" : "") << urlParts.query << endl;
 
 	/*cout << "scheme: " << urlParts.scheme << endl;

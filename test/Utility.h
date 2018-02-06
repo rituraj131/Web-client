@@ -1,8 +1,5 @@
 #pragma once
-#include <fstream>
-#include<string>
-#include<iostream>
-#include <queue>
+#include "common.h"
 #include "UrlParts.h"
 #include "UrlValidator.h"
 #ifdef _WIN32
@@ -11,7 +8,6 @@
 #else
 #include <unistd.h>
 #endif
-using namespace std;
 
 class Utility
 {
@@ -23,5 +19,6 @@ public:
 	queue<string> split(std::string s, string delimiter);
 	void printURLList(vector<string> list);
 	int getThreadCount(std::string count);
+	void printData(UrlParts urlParts);
 };
 

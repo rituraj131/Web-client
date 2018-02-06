@@ -1,7 +1,6 @@
 #pragma once
+#include "common.h"
 
-#include <iostream>
-using namespace std;
 #define INITIAL_BUF_SIZE 8192
 #define MAX_BUFF_SIZE_ROBOT 16384
 #define MAX_BUFF_SIZE_PAGE 2097152

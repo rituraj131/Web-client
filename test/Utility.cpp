@@ -80,3 +80,13 @@ void Utility::printURLList(vector<string> list) {
 		cout << list.at(i) << endl;
 }
 
+void Utility::printData(UrlParts urlParts) {
+	cout << endl << "print:: Parsed URL" << endl;
+	cout << "--------------" << endl;
+	cout << "scheme: " << urlParts.scheme << endl;
+	cout << "host: " << urlParts.host << endl;
+	cout << "port: " << urlParts.port_no << endl;
+	cout << "path: " << urlParts.path << endl;
+	cout << "query: " << urlParts.query << endl;
+}
+

@@ -1,5 +1,5 @@
 #pragma once
-#include<string>
+#include "common.h"
 class UrlParts {
 public:
 	std::string url;

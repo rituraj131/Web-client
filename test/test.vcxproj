@@ -182,7 +182,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySocket.cpp" />
     <ClCompile Include="PrevHost.cpp" />
+    <ClCompile Include="Stats.cpp" />
     <ClCompile Include="StatsHandler.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="UrlValidator.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
@@ -192,9 +194,11 @@
     <ClInclude Include="HTMLParserBase.h" />
     <ClInclude Include="MySocket.h" />
     <ClInclude Include="PrevHost.h" />
+    <ClInclude Include="Stats.h" />
     <ClInclude Include="StatsHandler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="UrlParts.h" />
     <ClInclude Include="UrlValidator.h" />
     <ClInclude Include="Utility.h" />

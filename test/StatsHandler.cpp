@@ -33,7 +33,7 @@ void StatsHandler::incrementQueue(int count) {
 }
 
 void StatsHandler::decrementQueue(int count) {
-	pendingQueue += count;
+	pendingQueue -= count;
 }
 
 void StatsHandler::incrementExtractedURLCount(int count) {
@@ -62,6 +62,10 @@ void StatsHandler::incrementCrawledURLCount(int count) {
 
 void StatsHandler::incrementTotalLinks(int count) {
 	totalLinks += count;
+}
+
+void StatsHandler::incrementRobotsPassedCount(int count) {
+	robotsPassedCount += count;
 }
 
 int StatsHandler::getActiveThreadCount() {

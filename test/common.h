@@ -15,5 +15,11 @@
 #include <map>
 #include <set>
 #include <string>
+#include <mutex>
+#include <iostream>
+#include <fstream>
+#include <thread>
+#include <unordered_set>
+#include<atomic>
 
 using namespace std;		// if you're planning to use STL

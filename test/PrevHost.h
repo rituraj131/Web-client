@@ -1,9 +1,5 @@
 #pragma once
-#include <iostream>
-#include <unordered_set>
-#include<string>
-#include <windows.h>
-using namespace std;
+#include "common.h"
 
 class PrevHost
 {
