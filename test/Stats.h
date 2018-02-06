@@ -14,7 +14,7 @@ public:
 	int getQueueSize();
 	void changeThreadCount(int);
 	int getActiveThreadCount();
-	void incrementExtractedURLCount(int);
+	void incrementExtractedURLCount();
 	int getExtractedURLCount();
 };
 

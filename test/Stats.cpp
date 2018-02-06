@@ -37,8 +37,8 @@ int Stats::getActiveThreadCount() {
 	return activeThreadCount;
 }
 
-void Stats::incrementExtractedURLCount(int count) {
-	extractedURLCount += count;
+void Stats::incrementExtractedURLCount() {
+	extractedURLCount += 1;
 }
 
 int Stats::getExtractedURLCount() {

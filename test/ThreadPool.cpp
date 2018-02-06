@@ -8,7 +8,7 @@ void statsThreadFunc(Stats &);
 void crawlerThreadFunc(Stats &);
 void changeThreadCount(Stats &, int);
 int getActiveThreadCount(Stats &);
-void incrementURlExtractedCount(Stats &, int);
+void incrementURlExtractedCount(Stats &);
 int getExtractedURLCount(Stats &);
 
 void producer(Stats &stats, std::string filename) {
@@ -58,7 +58,6 @@ void crawlerThreadFunc(Stats &stats) {
 	Utility utility;
 	while (true) {
 		std::string url = consumer(std::ref(stats));
-		incrementURlExtractedCount(ref(stats), 1);
 
 		if (url.compare("-1") == 0) {
 			if (!producerDone)
@@ -66,6 +65,7 @@ void crawlerThreadFunc(Stats &stats) {
 			else
 				break;
 		}
+		incrementURlExtractedCount(ref(stats));
 		changeThreadCount(ref(stats), 1);
 		UrlParts urlParts = validate.urlParser(url);
 		if (urlParts.isValid == -10) { //some failure in parsing observed!
@@ -88,7 +88,7 @@ void statsThreadFunc(Stats &stats) {
 
 	liDueTime.QuadPart = -10000000LL;
 	int secCount = 2;
-
+	cout << "Queue to start with: " << stats.getQueueSize() << endl;
 	while (!producerDone || !crawlerDone) {
 		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
 		if (NULL == hTimer)
@@ -133,9 +133,9 @@ int getActiveThreadCount(Stats &stats) {
 	return count;
 }
 
-void incrementURlExtractedCount(Stats &stats, int count) {
+void incrementURlExtractedCount(Stats &stats) {
 	mtx.lock();
-	stats.incrementExtractedURLCount(count);
+	stats.incrementExtractedURLCount();
 	mtx.unlock();
 }
 
