@@ -3,6 +3,7 @@
 static mutex mtx;
 static PrevHost prevHost;
 static bool producerDone = false, crawlerDone = false;
+static int threadCount = 0;
 
 void crawlerThreadFunc(Stats &);
 void statsThreadFunc(Stats &);
@@ -132,14 +133,15 @@ bool checkIPUniqueness(char *address) {
 }
 
 void ThreadPool::letTheGameBegin(Stats &stats, int thread_count) {
+	threadCount = thread_count;
 	std::thread *crawlerThreads = new std::thread[thread_count];
 	std::thread statsThread(statsThreadFunc, std::ref(stats));
 
-	for (int i = 0; i < thread_count; i++) {
+	for (int i = 0; i < threadCount; i++) {
 		crawlerThreads[i] = std::thread(crawlerThreadFunc, std::ref(stats));
 	}
 
-	for (int i = 0; i < thread_count; i++) {
+	for (int i = 0; i < threadCount; i++) {
 		if (crawlerThreads[i].joinable())
 			crawlerThreads[i].join();
 	}
@@ -152,44 +154,47 @@ void crawlerThreadFunc(Stats &stats) {
 	UrlValidator validate;
 	Utility utility;
 	while (true) {
+		changeThreadCount(ref(stats), 1);
 		std::string url = consumer(std::ref(stats));
 
 		if (url.compare("-1") == 0) {
+			changeThreadCount(ref(stats), -1);
 			if (!producerDone)
 				continue;
 			else
 				break;
 		}
+
 		incrementURlExtractedCount(ref(stats));
-		changeThreadCount(ref(stats), 1);
 
 		UrlParts urlParts = validate.urlParser(url);
 		if (urlParts.isValid == -10) { //some failure in parsing observed!
-			mtx.lock();
 			changeThreadCount(ref(stats), -1);
-			mtx.unlock();
 			continue;
 		}
 
-		if (checkHostUniqueness(urlParts) == 0)
+		if (checkHostUniqueness(urlParts) == 0) {
+			changeThreadCount(ref(stats), -1);
 			continue;
+		}
 
 		incrementUniqueHostCount(ref(stats));
 
 		Crawler crawler;
 		crawler.crawl(ref(stats), urlParts);
 
-		//Sleep(500);
 		changeThreadCount(ref(stats), -1);
 	}
-	crawlerDone = true;
+
+	if(getActiveThreadCount(ref(stats)) == 0)
+		crawlerDone = true;
 }
 
 void statsThreadFunc(Stats &stats) {
 	HANDLE hTimer = NULL;
 	LARGE_INTEGER liDueTime;
 
-	liDueTime.QuadPart = -10000000LL;
+	liDueTime.QuadPart = -20000000LL;
 	int secCount = 2;
 	
 	while (!producerDone || !crawlerDone) {
