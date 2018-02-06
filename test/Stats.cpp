@@ -8,6 +8,8 @@ Stats::Stats() {
 	uniqueIPCount = 0;
 	bytesRead = 0;
 	robotsPassedCount = 0;
+	crawledURLCount = 0;
+	linksCount = 0;
 }
 
 void Stats::addURLToQueue(std::string url) {
@@ -88,6 +90,22 @@ void Stats::incrementRobotsPassedCount() {
 
 int Stats::getRobotsPassedCount() {
 	return robotsPassedCount;
+}
+
+void Stats::incrementCrawledURLCount() {
+	crawledURLCount++;
+}
+
+int Stats::getCrawledURLCount() {
+	return crawledURLCount;
+}
+
+void Stats::incrementLinksCount(int count) {
+	linksCount += count;
+}
+
+int Stats::getLinksCount() {
+	return linksCount;
 }
 
 

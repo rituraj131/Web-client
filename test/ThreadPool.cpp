@@ -74,6 +74,20 @@ int getRobotsPassedCount(Stats &stats) {
 	return count;
 }
 
+int getCrawledURLCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getCrawledURLCount();
+	mtx.unlock();
+	return count;
+}
+
+int getLinksCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getLinksCount();
+	mtx.unlock();
+	return count;
+}
+
 void producer(Stats &stats, std::string filename) {
 	std::ifstream ifs(filename);
 	std::string url;
@@ -165,7 +179,7 @@ void crawlerThreadFunc(Stats &stats) {
 		Crawler crawler;
 		crawler.crawl(ref(stats), urlParts);
 
-		Sleep(500);
+		//Sleep(500);
 		changeThreadCount(ref(stats), -1);
 	}
 	crawlerDone = true;
@@ -205,6 +219,8 @@ void statsThreadFunc(Stats &stats) {
 			cout<<"Unique IP Count: "<< getUniqueIPCount(ref(stats)) << endl;
 			cout<<"Bytes Read: "<< getBytesRead(ref(stats)) << endl;
 			cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
+			cout<<"Total Crawled URL Count: "<< getCrawledURLCount(ref(stats)) << endl;
+			cout<<"Total Links Found: "<< getLinksCount(ref(stats)) << endl;
 		}
 	}
 
@@ -218,4 +234,6 @@ void statsThreadFunc(Stats &stats) {
 	cout << "Unique IP Count: " << getUniqueIPCount(ref(stats)) << endl;
 	cout << "Bytes Read: " << getBytesRead(ref(stats)) << endl;
 	cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
+	cout << "Total Crawled URL Count: " << getCrawledURLCount(ref(stats)) << endl;
+	cout << "Total Links Found: " << getLinksCount(ref(stats)) << endl;
 }

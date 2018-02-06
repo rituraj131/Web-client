@@ -5,7 +5,7 @@ class Stats
 	std::queue<std::string> q;
 	int val;
 	int activeThreadCount, extractedURLCount, uniqueHostCount, 
-		dnsCount, uniqueIPCount, robotsPassedCount;
+		dnsCount, uniqueIPCount, robotsPassedCount, crawledURLCount, linksCount;
 	long bytesRead;
 
 public:
@@ -29,5 +29,9 @@ public:
 	long getBytesRead();
 	void incrementRobotsPassedCount();
 	int getRobotsPassedCount();
+	void incrementCrawledURLCount();
+	int getCrawledURLCount();
+	void incrementLinksCount(int);
+	int getLinksCount();
 };
 

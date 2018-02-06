@@ -4,6 +4,8 @@
 #include "UrlParts.h"
 #include "MySocket.h"
 #include "PrevHost.h"
+#include "HTMLParserBase.h"
+#define HTTP_STATUS_OK 200
 
 class Crawler
 {

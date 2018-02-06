@@ -28,6 +28,18 @@ void incrementRobotsPassedCount(Stats &stats) {
 	mtx.unlock();
 }
 
+void incrementCrawledURLCount(Stats &stats) {
+	mtx.lock();
+	stats.incrementCrawledURLCount();
+	mtx.unlock();
+}
+
+void incrementLinksCount(Stats &stats, int count) {
+	mtx.lock();
+	stats.incrementLinksCount(count);
+	mtx.unlock();
+}
+
 bool checkIPUniquenessCrawler(char *address) {
 	mtx.lock();
 	bool ret = true;
@@ -35,6 +47,21 @@ bool checkIPUniquenessCrawler(char *address) {
 		ret = false;
 	mtx.unlock();
 	return ret;
+}
+
+int getLinkCountCrawler(char *fileBuf, char *baseUrl)
+{
+	// create new parser object
+	HTMLParserBase *parser = new HTMLParserBase;
+
+	int nLinks;
+	char *linkBuffer = parser->Parse(fileBuf, strlen(fileBuf), baseUrl, (int)strlen(baseUrl), &nLinks);
+
+	// check for errors indicated by negative values
+	if (nLinks < 0) { nLinks = 0; }
+
+	delete parser;		// this internally deletes linkBuffer
+	return nLinks;
 }
 
 bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot) {
@@ -72,7 +99,6 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot)
 	
 	else if (read_state == -1)
 	{
-		//cout << "failed with read " << WSAGetLastError() << endl;
 		return false;
 	}
 	else if (read_state == 0)//exceeding max read limit
@@ -98,16 +124,27 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot)
 	char *char_baseURL = new char[INITIAL_BUF_SIZE];
 	strcpy_s(char_baseURL, baseURL.size() + 1, baseURL.c_str());
 	if (char_baseURL == NULL) { return false; }
-
+	//cout << "code: " << code << " isRobot: "<<isRobot<<endl;
 	if (isRobot && code < 400 || code >= 500) {
 		return false;
 	}
 	else if (isRobot) {
 		incrementRobotsPassedCount(ref(stats));
+		return true;
 	}
+	//cout << "code: " << code << endl;
+	if (code == HTTP_STATUS_OK) {
+		incrementCrawledURLCount(ref(stats));
 
-	std::string strHTML(socket.get_webpage_data());
-	int headerEndPos = strHTML.find("\r\n\r\n");
+		std::string strHTML(socket.get_webpage_data());
+		int headerEndPos = strHTML.find("\r\n\r\n");
+
+		std::string response = strHTML.substr(headerEndPos + 4);
+		char *char_response = new char[response.length() + 1];
+		strcpy_s(char_response, response.size() + 1, response.c_str());
+		int nLinks = getLinkCountCrawler(char_response, char_baseURL);
+		incrementLinksCount(ref(stats), nLinks);
+	}
 }
 
 void Crawler::crawl(Stats &stats, UrlParts urlParts) {
@@ -127,10 +164,8 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts) {
 	{
 		// if not a valid IP, then do a DNS lookup
 		if ((remote = gethostbyname(char_host)) == NULL)
-		{
-			//cout << "failed with " << WSAGetLastError() << endl;
 			return;
-		}
+		
 		else // take the first IP address and copy into sin_addr
 		{
 			memcpy((char *)&(server.sin_addr), remote->h_addr, remote->h_length);
