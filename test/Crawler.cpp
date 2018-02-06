@@ -22,6 +22,12 @@ void incrementBytesRead(Stats &stats, long bytesRead) {
 	mtx.unlock();
 }
 
+void incrementRobotsPassedCount(Stats &stats) {
+	mtx.lock();
+	stats.incrementRobotsPassedCount();
+	mtx.unlock();
+}
+
 bool checkIPUniquenessCrawler(char *address) {
 	mtx.lock();
 	bool ret = true;
@@ -73,6 +79,35 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot)
 		return false;
 
 	incrementBytesRead(ref(stats), socket.get_data_size_inbytes());
+
+	char *status_code;
+	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
+
+	if (versionHTTP == NULL)
+		return false;
+
+	versionHTTP = (char *)(versionHTTP + 9); //after 9 position status code will be present
+	status_code = (char*)malloc(4);
+
+	memcpy(status_code, versionHTTP, 4); //status code length 3 and one for '\0'
+	status_code[3] = '\0';
+
+	int code = atoi(status_code);
+
+	std::string baseURL = "http://" + urlParts.host;
+	char *char_baseURL = new char[INITIAL_BUF_SIZE];
+	strcpy_s(char_baseURL, baseURL.size() + 1, baseURL.c_str());
+	if (char_baseURL == NULL) { return false; }
+
+	if (isRobot && code < 400 || code >= 500) {
+		return false;
+	}
+	else if (isRobot) {
+		incrementRobotsPassedCount(ref(stats));
+	}
+
+	std::string strHTML(socket.get_webpage_data());
+	int headerEndPos = strHTML.find("\r\n\r\n");
 }
 
 void Crawler::crawl(Stats &stats, UrlParts urlParts) {

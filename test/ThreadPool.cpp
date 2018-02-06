@@ -67,6 +67,13 @@ long getBytesRead(Stats &stats) {
 	return count;
 }
 
+int getRobotsPassedCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getRobotsPassedCount();
+	mtx.unlock();
+	return count;
+}
+
 void producer(Stats &stats, std::string filename) {
 	std::ifstream ifs(filename);
 	std::string url;
@@ -197,6 +204,7 @@ void statsThreadFunc(Stats &stats) {
 			cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
 			cout<<"Unique IP Count: "<< getUniqueIPCount(ref(stats)) << endl;
 			cout<<"Bytes Read: "<< getBytesRead(ref(stats)) << endl;
+			cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
 		}
 	}
 
@@ -209,4 +217,5 @@ void statsThreadFunc(Stats &stats) {
 	cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
 	cout << "Unique IP Count: " << getUniqueIPCount(ref(stats)) << endl;
 	cout << "Bytes Read: " << getBytesRead(ref(stats)) << endl;
+	cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
 }

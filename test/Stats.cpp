@@ -7,6 +7,7 @@ Stats::Stats() {
 	dnsCount = 0;
 	uniqueIPCount = 0;
 	bytesRead = 0;
+	robotsPassedCount = 0;
 }
 
 void Stats::addURLToQueue(std::string url) {
@@ -79,6 +80,14 @@ void Stats::incrementBytesRead(long bytesCount) {
 
 long Stats::getBytesRead() {
 	return bytesRead;
+}
+
+void Stats::incrementRobotsPassedCount() {
+	robotsPassedCount++;
+}
+
+int Stats::getRobotsPassedCount() {
+	return robotsPassedCount;
 }
 
 
