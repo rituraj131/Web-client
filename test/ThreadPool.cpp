@@ -4,7 +4,6 @@ static mutex mtx;
 static PrevHost prevHost;
 static bool producerDone = false, crawlerDone = false;
 
-int getRandomNo();
 void crawlerThreadFunc(Stats &);
 void statsThreadFunc(Stats &);
 
@@ -43,6 +42,27 @@ void incrementUniqueHostCount(Stats &stats) {
 int getUniqueHostCount(Stats &stats) {
 	mtx.lock();
 	int count = stats.getUniqueHostCount();
+	mtx.unlock();
+	return count;
+}
+
+int getDNSCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getDNSCount();
+	mtx.unlock();
+	return count;
+}
+
+int getUniqueIPCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getUniqueIPCount();
+	mtx.unlock();
+	return count;
+}
+
+long getBytesRead(Stats &stats) {
+	mtx.lock();
+	long count = stats.getBytesRead();
 	mtx.unlock();
 	return count;
 }
@@ -134,8 +154,11 @@ void crawlerThreadFunc(Stats &stats) {
 			continue;
 
 		incrementUniqueHostCount(ref(stats));
+
+		Crawler crawler;
+		crawler.crawl(ref(stats), urlParts);
+
 		Sleep(500);
-		stats.incrementVal(getRandomNo());
 		changeThreadCount(ref(stats), -1);
 	}
 	crawlerDone = true;
@@ -167,15 +190,23 @@ void statsThreadFunc(Stats &stats) {
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
 		else {
-			cout << "\nVal: " << stats.getVal() << endl;
-			cout << "Queue Size: " << stats.getQueueSize() << endl;
+			cout << "\nQueue Size: " << stats.getQueueSize() << endl;
 			cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
 			cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
 			cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
+			cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
+			cout<<"Unique IP Count: "<< getUniqueIPCount(ref(stats)) << endl;
+			cout<<"Bytes Read: "<< getBytesRead(ref(stats)) << endl;
 		}
 	}
-}
 
-int getRandomNo() {
-	return std::rand() % 10;
+	cout << "\n\nAll Done:" << endl;
+	cout << "--------------" << endl;
+	cout << "Queue Size: " << stats.getQueueSize() << endl;
+	cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
+	cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
+	cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
+	cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
+	cout << "Unique IP Count: " << getUniqueIPCount(ref(stats)) << endl;
+	cout << "Bytes Read: " << getBytesRead(ref(stats)) << endl;
 }

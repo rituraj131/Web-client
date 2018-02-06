@@ -4,6 +4,9 @@ Stats::Stats() {
 	activeThreadCount = 0;
 	extractedURLCount = 0;
 	uniqueHostCount = 0;
+	dnsCount = 0;
+	uniqueIPCount = 0;
+	bytesRead = 0;
 }
 
 void Stats::addURLToQueue(std::string url) {
@@ -52,6 +55,30 @@ void Stats::incrementUniqueHostCount() {
 
 int Stats::getUniqueHostCount() {
 	return uniqueHostCount;
+}
+
+void Stats::incrementDNSCount() {
+	dnsCount++;
+}
+
+int Stats::getDNSCount() {
+	return dnsCount;
+}
+
+void Stats::incrementUniqueIPCount() {
+	uniqueIPCount++;
+}
+
+int Stats::getUniqueIPCount() {
+	return uniqueIPCount;
+}
+
+void Stats::incrementBytesRead(long bytesCount) {
+	bytesRead += bytesCount;
+}
+
+long Stats::getBytesRead() {
+	return bytesRead;
 }
 
 

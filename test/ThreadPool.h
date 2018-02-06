@@ -5,6 +5,7 @@
 #include "UrlValidator.h"
 #include "Utility.h"
 #include "PrevHost.h"
+#include "Crawler.h"
 
 class ThreadPool
 {

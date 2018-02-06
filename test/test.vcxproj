@@ -178,6 +178,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Crawler.cpp" />
     <ClCompile Include="GetAndParse.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySocket.cpp" />
@@ -190,6 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
+    <ClInclude Include="Crawler.h" />
     <ClInclude Include="GetAndParse.h" />
     <ClInclude Include="HTMLParserBase.h" />
     <ClInclude Include="MySocket.h" />
