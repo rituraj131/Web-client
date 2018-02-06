@@ -4,15 +4,17 @@ class Stats
 {
 	std::queue<std::string> q;
 	int val;
-	int activeThreadCount;
+	int activeThreadCount, extractedURLCount;
 public:
 	Stats();
-	void addURLToQueue(std::string url);
+	void addURLToQueue(std::string);
 	std::string popURLFromQueue();
-	void incrementVal(int count);
+	void incrementVal(int);
 	int getVal();
 	int getQueueSize();
-	void changeThreadCount(int count);
+	void changeThreadCount(int);
 	int getActiveThreadCount();
+	void incrementExtractedURLCount(int);
+	int getExtractedURLCount();
 };
 

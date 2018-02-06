@@ -2,6 +2,7 @@
 Stats::Stats() {
 	val = 0;
 	activeThreadCount = 0;
+	extractedURLCount = 0;
 }
 
 void Stats::addURLToQueue(std::string url) {
@@ -34,6 +35,14 @@ void Stats::changeThreadCount(int count) {
 
 int Stats::getActiveThreadCount() {
 	return activeThreadCount;
+}
+
+void Stats::incrementExtractedURLCount(int count) {
+	extractedURLCount += count;
+}
+
+int Stats::getExtractedURLCount() {
+	return extractedURLCount;
 }
 
 

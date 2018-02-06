@@ -8,13 +8,15 @@ void statsThreadFunc(Stats &);
 void crawlerThreadFunc(Stats &);
 void changeThreadCount(Stats &, int);
 int getActiveThreadCount(Stats &);
+void incrementURlExtractedCount(Stats &, int);
+int getExtractedURLCount(Stats &);
 
 void producer(Stats &stats, std::string filename) {
 	std::ifstream ifs(filename);
 	std::string url;
 	while (std::getline(ifs, url)) {
 		if (url.length() == 0) continue;
-		//cout << url << endl;
+
 		mtx.lock();
 		stats.addURLToQueue(url);
 		mtx.unlock();
@@ -56,6 +58,8 @@ void crawlerThreadFunc(Stats &stats) {
 	Utility utility;
 	while (true) {
 		std::string url = consumer(std::ref(stats));
+		incrementURlExtractedCount(ref(stats), 1);
+
 		if (url.compare("-1") == 0) {
 			if (!producerDone)
 				continue;
@@ -64,7 +68,13 @@ void crawlerThreadFunc(Stats &stats) {
 		}
 		changeThreadCount(ref(stats), 1);
 		UrlParts urlParts = validate.urlParser(url);
-		
+		if (urlParts.isValid == -10) { //some failure in parsing observed!
+			mtx.lock();
+			changeThreadCount(ref(stats), -1);
+			mtx.unlock();
+			continue;
+		}
+
 		Sleep(500);
 		stats.incrementVal(getRandomNo());
 		changeThreadCount(ref(stats), -1);
@@ -98,8 +108,9 @@ void statsThreadFunc(Stats &stats) {
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
 		else {
-			cout << "Val: " << stats.getVal() << endl;
+			cout << "\nVal: " << stats.getVal() << endl;
 			cout << "Queue Size: " << stats.getQueueSize() << endl;
+			cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
 			cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
 		}
 	}
@@ -118,6 +129,19 @@ void changeThreadCount(Stats &stats, int count) {
 int getActiveThreadCount(Stats &stats) {
 	mtx.lock();
 	int count = stats.getActiveThreadCount();
+	mtx.unlock();
+	return count;
+}
+
+void incrementURlExtractedCount(Stats &stats, int count) {
+	mtx.lock();
+	stats.incrementExtractedURLCount(count);
+	mtx.unlock();
+}
+
+int getExtractedURLCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getExtractedURLCount();
 	mtx.unlock();
 	return count;
 }
