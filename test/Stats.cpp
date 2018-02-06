@@ -3,6 +3,7 @@ Stats::Stats() {
 	val = 0;
 	activeThreadCount = 0;
 	extractedURLCount = 0;
+	uniqueHostCount = 0;
 }
 
 void Stats::addURLToQueue(std::string url) {
@@ -43,6 +44,14 @@ void Stats::incrementExtractedURLCount() {
 
 int Stats::getExtractedURLCount() {
 	return extractedURLCount;
+}
+
+void Stats::incrementUniqueHostCount() {
+	uniqueHostCount++;
+}
+
+int Stats::getUniqueHostCount() {
+	return uniqueHostCount;
 }
 
 

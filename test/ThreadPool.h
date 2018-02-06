@@ -4,6 +4,7 @@
 #include "Urlparts.h"
 #include "UrlValidator.h"
 #include "Utility.h"
+#include "PrevHost.h"
 
 class ThreadPool
 {

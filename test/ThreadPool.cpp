@@ -1,15 +1,51 @@
 #include "ThreadPool.h"
 
 static mutex mtx;
+static PrevHost prevHost;
 static bool producerDone = false, crawlerDone = false;
 
 int getRandomNo();
-void statsThreadFunc(Stats &);
 void crawlerThreadFunc(Stats &);
-void changeThreadCount(Stats &, int);
-int getActiveThreadCount(Stats &);
-void incrementURlExtractedCount(Stats &);
-int getExtractedURLCount(Stats &);
+void statsThreadFunc(Stats &);
+
+void changeThreadCount(Stats &stats, int count) {
+	mtx.lock();
+	stats.changeThreadCount(count);
+	mtx.unlock();
+}
+
+int getActiveThreadCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getActiveThreadCount();
+	mtx.unlock();
+	return count;
+}
+
+void incrementURlExtractedCount(Stats &stats) {
+	mtx.lock();
+	stats.incrementExtractedURLCount();
+	mtx.unlock();
+}
+
+int getExtractedURLCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getExtractedURLCount();
+	mtx.unlock();
+	return count;
+}
+
+void incrementUniqueHostCount(Stats &stats) {
+	mtx.lock();
+	stats.incrementUniqueHostCount();
+	mtx.unlock();
+}
+
+int getUniqueHostCount(Stats &stats) {
+	mtx.lock();
+	int count = stats.getUniqueHostCount();
+	mtx.unlock();
+	return count;
+}
 
 void producer(Stats &stats, std::string filename) {
 	std::ifstream ifs(filename);
@@ -34,6 +70,24 @@ std::string consumer(Stats &stats) {
 ThreadPool::ThreadPool(Stats &stats, std::string filename)
 {
 	producer(std::ref(stats), filename);
+}
+
+bool checkHostUniqueness(UrlParts urlParts) {
+	mtx.lock();
+	bool ret = true;
+	if (prevHost.checkIfHostUnique(urlParts.host) == 0)
+		ret = false;
+	mtx.unlock();
+	return ret;
+}
+
+bool checkIPUniqueness(char *address) {
+	mtx.lock();
+	bool ret = true;
+	if (prevHost.checkIfIPUnique(address) == 0)
+		ret = false;
+	mtx.unlock();
+	return ret;
 }
 
 void ThreadPool::letTheGameBegin(Stats &stats, int thread_count) {
@@ -67,6 +121,7 @@ void crawlerThreadFunc(Stats &stats) {
 		}
 		incrementURlExtractedCount(ref(stats));
 		changeThreadCount(ref(stats), 1);
+
 		UrlParts urlParts = validate.urlParser(url);
 		if (urlParts.isValid == -10) { //some failure in parsing observed!
 			mtx.lock();
@@ -75,6 +130,10 @@ void crawlerThreadFunc(Stats &stats) {
 			continue;
 		}
 
+		if (checkHostUniqueness(urlParts) == 0)
+			continue;
+
+		incrementUniqueHostCount(ref(stats));
 		Sleep(500);
 		stats.incrementVal(getRandomNo());
 		changeThreadCount(ref(stats), -1);
@@ -88,7 +147,7 @@ void statsThreadFunc(Stats &stats) {
 
 	liDueTime.QuadPart = -10000000LL;
 	int secCount = 2;
-	cout << "Queue to start with: " << stats.getQueueSize() << endl;
+	
 	while (!producerDone || !crawlerDone) {
 		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
 		if (NULL == hTimer)
@@ -112,36 +171,11 @@ void statsThreadFunc(Stats &stats) {
 			cout << "Queue Size: " << stats.getQueueSize() << endl;
 			cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
 			cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
+			cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
 		}
 	}
 }
 
 int getRandomNo() {
 	return std::rand() % 10;
-}
-
-void changeThreadCount(Stats &stats, int count) {
-	mtx.lock();
-	stats.changeThreadCount(count);
-	mtx.unlock();
-}
-
-int getActiveThreadCount(Stats &stats) {
-	mtx.lock();
-	int count = stats.getActiveThreadCount();
-	mtx.unlock();
-	return count;
-}
-
-void incrementURlExtractedCount(Stats &stats) {
-	mtx.lock();
-	stats.incrementExtractedURLCount();
-	mtx.unlock();
-}
-
-int getExtractedURLCount(Stats &stats) {
-	mtx.lock();
-	int count = stats.getExtractedURLCount();
-	mtx.unlock();
-	return count;
 }
