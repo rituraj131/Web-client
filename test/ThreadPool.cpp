@@ -194,7 +194,7 @@ void statsThreadFunc(Stats &stats) {
 
 	liDueTime.QuadPart = -20000000LL;
 	int secCount = 2;
-	
+	long lastDownloadSize = 0, lastPagesCount = 0;
 	while (!producerDone || !crawlerDone) {
 		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
 		if (NULL == hTimer)
@@ -214,38 +214,40 @@ void statsThreadFunc(Stats &stats) {
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
 		else {
-			printf("[%3d] %5d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n\n",
+			printf("[%3d] %5d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n",
 				secCount, getActiveThreadCount(ref(stats)), urlQueue.size(), 
 				getExtractedURLCount(ref(stats)), getUniqueHostCount(ref(stats)),
 				getDNSCount(ref(stats)), getUniqueIPCount(ref(stats)), 
 				getRobotsPassedCount(ref(stats)), getCrawledURLCount(ref(stats)),
 				getLinksCount(ref(stats)));
+			
+			long tempBytesCount = getBytesRead(ref(stats));
+			float dataThisTime = ((float)tempBytesCount - (float)lastDownloadSize)/(2*1000000)*8;
+			lastDownloadSize = tempBytesCount;
+			int tempRobotsPassedCount = getRobotsPassedCount(ref(stats));
+			int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
+			lastPagesCount = tempRobotsPassedCount;
+			
+			cout << "      *** crawling " << thisPagesCount / 2 << " pps @ " << 
+				std::setprecision(2)<<dataThisTime << " Mbps\n\n";
+			//printf("      *** crawling %.1f pps @ %.2f Mbps\n\n", thisPagesCount/2, (dataThisTime));
 			secCount += 2;
-			/*cout << "\nQueue Size: " << urlQueue.size() << endl;
-			cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
-			cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
-			cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
-			cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
-			cout<<"Unique IP Count: "<< getUniqueIPCount(ref(stats)) << endl;
-			cout<<"Bytes Read: "<< getBytesRead(ref(stats)) << endl;
-			cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
-			cout<<"Total Crawled URL Count: "<< getCrawledURLCount(ref(stats)) << endl;
-			cout<<"Total Links Found: "<< getLinksCount(ref(stats)) << endl;*/
 		}
 	}
+	secCount -= 2;
 	cout << endl;
 	cout << "Final Report" << endl;
 	cout << "---------------" << endl;
-	printf("Extracted %7d URLs @ %5d/s\n", getExtractedURLCount(ref(stats)), 
-		(int)((float)getExtractedURLCount(ref(stats))/secCount));
-	printf("Looked up %7d DNS names @ %5d/s\n", getDNSCount(ref(stats)), 
-		(int)((float)getDNSCount(ref(stats))/secCount));
-	printf("Downloaded %7d robots @%5d/s\n", getRobotsPassedCount(ref(stats)),
-		(int)((float)getRobotsPassedCount(ref(stats))/secCount));
-	printf("Crawled %7d pages @%5d/s\n", getCrawledURLCount(ref(stats)),
-		(int)((float)getCrawledURLCount(ref(stats))/secCount));
-	printf("Parsed %7d links @% 5d/s\n", getLinksCount(ref(stats)),
-		(int)((float)getLinksCount(ref(stats))/secCount));
+	printf("Extracted %7d URLs @ %.1f/s\n", getExtractedURLCount(ref(stats)), 
+		((float)getExtractedURLCount(ref(stats))/secCount));
+	printf("Looked up %7d DNS names @ %.1f/s\n", getDNSCount(ref(stats)), 
+		((float)getDNSCount(ref(stats))/secCount));
+	printf("Downloaded %7d robots @ %.1f/s\n", getRobotsPassedCount(ref(stats)),
+		((float)getRobotsPassedCount(ref(stats))/secCount));
+	printf("Crawled %7d pages @ %.1f/s\n", getCrawledURLCount(ref(stats)),
+		((float)getCrawledURLCount(ref(stats))/secCount));
+	printf("Parsed %7d links @ %.1f/s\n", getLinksCount(ref(stats)),
+		((float)getLinksCount(ref(stats))/secCount));
 	vector<int> headerList = stats.getHeaderCount();
 	printf("HTTP codes: 2xx = %5d, 3xx = %5d, 4xx = %5d, 5xx = %5d, other = %5d\n",
 		headerList.at(0), headerList.at(1), headerList.at(2), headerList.at(3), headerList.at(4));
