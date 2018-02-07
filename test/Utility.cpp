@@ -39,8 +39,7 @@ bool Utility::validateFileExistence(const std::string &Filename)
 	if (access(Filename.c_str(), 0) == 0)
 		return true;
 	else {
-		cout << "File Not Found! Exiting..." << endl;
-		exit(0);
+		return false;
 	}
 }
 

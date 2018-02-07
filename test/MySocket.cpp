@@ -141,7 +141,7 @@ bool Socket::socket_send(char *buf)
 	int ret = 0;
 	ret = send(sock, buf, strlen(buf), 0);
 	if (ret == SOCKET_ERROR) {
-		printf("send failed: %d\n", WSAGetLastError());
+		//printf("send failed: %d\n", WSAGetLastError());
 		WSACleanup();
 		return false;
 	}

@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
 	Utility utility;
 	int thread_count = utility.getThreadCount(threadStr);
 	Stats stats;
-	ThreadPool tPool = ThreadPool(std::ref(stats), "list.txt");
-	tPool.letTheGameBegin(std::ref(stats), thread_count);
+	ThreadPool tPool = ThreadPool();
+	tPool.letTheGameBegin(std::ref(stats), thread_count, file_name);
 }
 
 int main111(int argc, char **argv)

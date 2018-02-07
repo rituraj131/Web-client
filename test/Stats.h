@@ -9,9 +9,10 @@ class Stats
 
 public:
 	Stats();
-	void addURLToQueue(std::string);
+	/*void addURLToQueue(std::string);
 	std::string popURLFromQueue();
 	int getQueueSize();
+	bool isURLQueueEmpty();*/
 	void changeThreadCount(int);
 	int getActiveThreadCount();
 	void incrementExtractedURLCount();

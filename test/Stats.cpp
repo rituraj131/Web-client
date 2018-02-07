@@ -11,8 +11,12 @@ Stats::Stats() {
 	linksCount = 0;
 }
 
-void Stats::addURLToQueue(std::string url) {
+/*void Stats::addURLToQueue(std::string url) {
 	q.push(url);
+}
+
+bool Stats::isURLQueueEmpty() {
+	return q.empty();
 }
 
 std::string Stats::popURLFromQueue() {
@@ -25,7 +29,7 @@ std::string Stats::popURLFromQueue() {
 
 int Stats::getQueueSize() {
 	return q.size();
-}
+}*/
 
 void Stats::changeThreadCount(int count) {
 	activeThreadCount += count;

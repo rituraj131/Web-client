@@ -4,9 +4,12 @@ static mutex mtx;
 static PrevHost prevHost;
 static bool producerDone = false, crawlerDone = false;
 static int threadCount = 0;
+static std::condition_variable cv;
+static std::queue<std::string> urlQueue;
 
 void crawlerThreadFunc(Stats &);
 void statsThreadFunc(Stats &);
+void urlProducerThreadFunc(Stats &, string);
 
 void changeThreadCount(Stats &stats, int count) {
 	mtx.lock();
@@ -89,29 +92,9 @@ int getLinksCount(Stats &stats) {
 	return count;
 }
 
-void producer(Stats &stats, std::string filename) {
-	std::ifstream ifs(filename);
-	std::string url;
-	while (std::getline(ifs, url)) {
-		if (url.length() == 0) continue;
-
-		mtx.lock();
-		stats.addURLToQueue(url);
-		mtx.unlock();
-	}
-	producerDone = true;
-}
-
-std::string consumer(Stats &stats) {
-	mtx.lock();
-	std::string url = stats.popURLFromQueue();
-	mtx.unlock();
-	return url;
-}
-
-ThreadPool::ThreadPool(Stats &stats, std::string filename)
+ThreadPool::ThreadPool()
 {
-	producer(std::ref(stats), filename);
+	//producer(std::ref(stats), filename);
 }
 
 bool checkHostUniqueness(UrlParts urlParts) {
@@ -132,14 +115,19 @@ bool checkIPUniqueness(char *address) {
 	return ret;
 }
 
-void ThreadPool::letTheGameBegin(Stats &stats, int thread_count) {
+void ThreadPool::letTheGameBegin(Stats &stats, int thread_count, string filename) {
 	threadCount = thread_count;
+	std::thread urlProducerThread(urlProducerThreadFunc, ref(stats), filename);
+
 	std::thread *crawlerThreads = new std::thread[thread_count];
 	std::thread statsThread(statsThreadFunc, std::ref(stats));
 
 	for (int i = 0; i < threadCount; i++) {
 		crawlerThreads[i] = std::thread(crawlerThreadFunc, std::ref(stats));
 	}
+
+	if (urlProducerThread.joinable())
+		urlProducerThread.join();
 
 	for (int i = 0; i < threadCount; i++) {
 		if (crawlerThreads[i].joinable())
@@ -148,15 +136,25 @@ void ThreadPool::letTheGameBegin(Stats &stats, int thread_count) {
 
 	if (statsThread.joinable())
 		statsThread.join();
+
 }
 
 void crawlerThreadFunc(Stats &stats) {
 	UrlValidator validate;
 	Utility utility;
 	while (true) {
-		changeThreadCount(ref(stats), 1);
-		std::string url = consumer(std::ref(stats));
+		std::unique_lock<std::mutex> lk(mtx);
+		if (urlQueue.empty()) {
+			if (producerDone)
+				break;
+			continue;
+		}
+		cv.wait(lk, [] { return producerDone || !urlQueue.empty(); });
 
+		std::string url = urlQueue.front();
+		urlQueue.pop();
+		lk.unlock();
+		changeThreadCount(ref(stats), 1);
 		if (url.compare("-1") == 0) {
 			changeThreadCount(ref(stats), -1);
 			if (!producerDone)
@@ -169,7 +167,7 @@ void crawlerThreadFunc(Stats &stats) {
 
 		UrlParts urlParts = validate.urlParser(url);
 		if (urlParts.isValid == -10) { //some failure in parsing observed!
-			changeThreadCount(ref(stats), -1);
+			changeThreadCount(ref(stats), -1);	
 			continue;
 		}
 
@@ -216,7 +214,7 @@ void statsThreadFunc(Stats &stats) {
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
 		else {
-			cout << "\nQueue Size: " << stats.getQueueSize() << endl;
+			cout << "\nQueue Size: " << urlQueue.size() << endl;
 			cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
 			cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
 			cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
@@ -231,7 +229,7 @@ void statsThreadFunc(Stats &stats) {
 
 	cout << "\n\nAll Done:" << endl;
 	cout << "--------------" << endl;
-	cout << "Queue Size: " << stats.getQueueSize() << endl;
+	cout << "Queue Size: " << urlQueue.size() << endl;
 	cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
 	cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
 	cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
@@ -241,4 +239,36 @@ void statsThreadFunc(Stats &stats) {
 	cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
 	cout << "Total Crawled URL Count: " << getCrawledURLCount(ref(stats)) << endl;
 	cout << "Total Links Found: " << getLinksCount(ref(stats)) << endl;
+}
+
+void urlProducerThreadFunc(Stats &stats, string filename) {
+	std::ifstream ifs(filename);
+	if (!ifs) {
+		producerDone = true;
+		return;
+	}
+	
+	Utility utility;
+	bool fileFound = utility.validateFileExistence(filename);
+	if (!fileFound) {
+		producerDone = true;
+		cout << "File not found!" << endl;
+		return;
+	}
+
+	string url;
+	while (std::getline(ifs, url)) {
+		if (url.length() == 0) continue;
+		
+		{
+			std::lock_guard<std::mutex> lk(mtx);
+			urlQueue.push(url);
+		}
+		cv.notify_all();
+	}
+	{
+		std::lock_guard<std::mutex> lk(mtx);
+		producerDone = true;
+	}
+	cv.notify_all();
 }

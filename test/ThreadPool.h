@@ -10,7 +10,7 @@
 class ThreadPool
 {
 public:
-	ThreadPool(Stats &, std::string);
-	void letTheGameBegin(Stats &stats, int thread_count);
+	ThreadPool();
+	void letTheGameBegin(Stats &, int, string);
 };
 
