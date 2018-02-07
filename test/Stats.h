@@ -5,6 +5,7 @@ class Stats
 	std::queue<std::string> q;
 	int activeThreadCount, extractedURLCount, uniqueHostCount, 
 		dnsCount, uniqueIPCount, robotsPassedCount, crawledURLCount, linksCount;
+	int header2XX, header3XX, header4XX, header5XX, headerOthers;
 	long bytesRead;
 
 public:
@@ -31,5 +32,7 @@ public:
 	int getCrawledURLCount();
 	void incrementLinksCount(int);
 	int getLinksCount();
+	void incrementHeaderCount(string);
+	vector<int> getHeaderCount();
 };
 

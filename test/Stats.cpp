@@ -9,6 +9,11 @@ Stats::Stats() {
 	robotsPassedCount = 0;
 	crawledURLCount = 0;
 	linksCount = 0;
+	header2XX = 0;
+	header3XX = 0;
+	header4XX = 0;
+	header5XX = 0;
+	headerOthers = 0;
 }
 
 /*void Stats::addURLToQueue(std::string url) {
@@ -101,6 +106,31 @@ void Stats::incrementLinksCount(int count) {
 
 int Stats::getLinksCount() {
 	return linksCount;
+}
+
+void Stats::incrementHeaderCount(string header) {
+	if (header.length() == 0)
+		headerOthers++;
+	else if (header.at(0) == '2')
+		header2XX++;
+	else if (header.at(0) == '2')
+		header3XX++;
+	else if (header.at(0) == '4')
+		header4XX++;
+	else if (header.at(0) == '5')
+		header5XX++;
+	else
+		headerOthers++;
+}
+
+vector<int> Stats::getHeaderCount() {
+	vector<int> list;
+	list.push_back(header2XX);
+	list.push_back(header3XX);
+	list.push_back(header4XX);
+	list.push_back(header5XX);
+	list.push_back(headerOthers);
+	return list;
 }
 
 

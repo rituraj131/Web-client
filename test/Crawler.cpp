@@ -40,6 +40,12 @@ void incrementLinksCount(Stats &stats, int count) {
 	mtx.unlock();
 }
 
+void incrementHeaderCount(Stats &stats, string header) {
+	mtx.lock();
+	stats.incrementHeaderCount(header);
+	mtx.unlock();
+}
+
 bool checkIPUniquenessCrawler(char *address) {
 	mtx.lock();
 	bool ret = true;
@@ -132,7 +138,9 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot)
 		incrementRobotsPassedCount(ref(stats));
 		return true;
 	}
-	//cout << "code: " << code << endl;
+	
+	incrementHeaderCount(ref(stats), status_code);
+
 	if (code == HTTP_STATUS_OK) {
 		incrementCrawledURLCount(ref(stats));
 
