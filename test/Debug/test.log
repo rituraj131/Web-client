@@ -1,6 +1,0 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (winsock-test.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  ThreadPool.cpp
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-f:\visualstudio\csce612-hw1p3\test\threadpool.cpp(144): warning C4101: 'utility': unreferenced local variable
-f:\visualstudio\csce612-hw1p3\test\threadpool.cpp(225): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  test.vcxproj -> F:\VisualStudio\CSCE612-HW1P3\Debug\web-client.exe

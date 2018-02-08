@@ -209,7 +209,7 @@ void statsThreadFunc(Stats &stats) {
 			printf("SetWaitableTimer failed (%d)\n", GetLastError());
 			return;
 		}
-
+		 
 		// Wait for the timer.
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
