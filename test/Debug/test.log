@@ -2,34 +2,5 @@
   ThreadPool.cpp
 f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 f:\visualstudio\csce612-hw1p3\test\threadpool.cpp(144): warning C4101: 'utility': unreferenced local variable
-  Generating Code...
-  Compiling...
-  main.cpp
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-f:\visualstudio\csce612-hw1p3\test\main.cpp(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-f:\visualstudio\csce612-hw1p3\test\main.cpp(37): warning C4101: 'getAndParse': unreferenced local variable
-f:\visualstudio\csce612-hw1p3\test\main.cpp(100): warning C4476: 'printf' : unknown type field character ' ' in format specifier
-f:\visualstudio\csce612-hw1p3\test\main.cpp(100): warning C4474: 'printf' : too many arguments passed for format string
-  f:\visualstudio\csce612-hw1p3\test\main.cpp(100): note: placeholders and their parameters expect 2 variadic arguments, but 3 were provided
-f:\visualstudio\csce612-hw1p3\test\main.cpp(142): warning C4476: 'printf' : unknown type field character ' ' in format specifier
-f:\visualstudio\csce612-hw1p3\test\main.cpp(142): warning C4474: 'printf' : too many arguments passed for format string
-  f:\visualstudio\csce612-hw1p3\test\main.cpp(142): note: placeholders and their parameters expect 2 variadic arguments, but 3 were provided
-  Utility.cpp
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-f:\visualstudio\csce612-hw1p3\test\utility.cpp(15): warning C4101: 'e': unreferenced local variable
-f:\visualstudio\csce612-hw1p3\test\utility.cpp(30): warning C4101: 'e': unreferenced local variable
-f:\visualstudio\csce612-hw1p3\test\utility.cpp(78): warning C4018: '<': signed/unsigned mismatch
-  UrlValidator.cpp
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.cpp(23): warning C4018: '<': signed/unsigned mismatch
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.cpp(27): warning C4018: '<': signed/unsigned mismatch
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.cpp(132): warning C4101: 'e': unreferenced local variable
-  Stats.cpp
-  PrevHost.cpp
-  MySocket.cpp
-  GetAndParse.cpp
-f:\visualstudio\csce612-hw1p3\test\urlvalidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Crawler.cpp
-  Generating Code...
-f:\visualstudio\csce612-hw1p3\test\crawler.cpp(156): warning C4715: 'crawlRealDeal': not all control paths return a value
+f:\visualstudio\csce612-hw1p3\test\threadpool.cpp(225): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   test.vcxproj -> F:\VisualStudio\CSCE612-HW1P3\Debug\web-client.exe

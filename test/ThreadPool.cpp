@@ -222,7 +222,7 @@ void statsThreadFunc(Stats &stats) {
 				getLinksCount(ref(stats)));
 			
 			long tempBytesCount = getBytesRead(ref(stats));
-			float dataThisTime = ((float)tempBytesCount - (float)lastDownloadSize)/(2*1000000)*8;
+			float dataThisTime = (((float)tempBytesCount - (float)(lastDownloadSize)) * 8.0)/(2*1000000);
 			lastDownloadSize = tempBytesCount;
 			int tempRobotsPassedCount = getRobotsPassedCount(ref(stats));
 			int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
@@ -251,19 +251,6 @@ void statsThreadFunc(Stats &stats) {
 	vector<int> headerList = stats.getHeaderCount();
 	printf("HTTP codes: 2xx = %5d, 3xx = %5d, 4xx = %5d, 5xx = %5d, other = %5d\n",
 		headerList.at(0), headerList.at(1), headerList.at(2), headerList.at(3), headerList.at(4));
-
-	/*cout << "\n\nAll Done:" << endl;
-	cout << "--------------" << endl;
-	cout << "Queue Size: " << urlQueue.size() << endl;
-	cout << "Extracted URL Count: " << getExtractedURLCount(ref(stats)) << endl;
-	cout << "Active Threads: " << getActiveThreadCount(ref(stats)) << endl;
-	cout << "Unique Host Count: " << getUniqueHostCount(ref(stats)) << endl;
-	cout << "DNS count: " << getDNSCount(ref(stats)) << endl;
-	cout << "Unique IP Count: " << getUniqueIPCount(ref(stats)) << endl;
-	cout << "Bytes Read: " << getBytesRead(ref(stats)) << endl;
-	cout << "Robots Test passed: " << getRobotsPassedCount(ref(stats)) << endl;
-	cout << "Total Crawled URL Count: " << getCrawledURLCount(ref(stats)) << endl;
-	cout << "Total Links Found: " << getLinksCount(ref(stats)) << endl;*/
 }
 
 void urlProducerThreadFunc(Stats &stats, string filename) {

@@ -1,8 +1,8 @@
 #include "GetAndParse.h"
 
 static PrevHost prevHost;
-struct sockaddr_in server = {0};
-mutex mtx;
+struct sockaddr_in server = { 0 };
+
 /*
 parse and return number of links in the webpage,
 webpage content is in fileBuf, baseUrl is the host part of webpage url
@@ -13,7 +13,7 @@ int getLinkCount(char *fileBuf, char *baseUrl)
 	HTMLParserBase *parser = new HTMLParserBase;
 
 	int nLinks;
-	char *linkBuffer = parser->Parse(fileBuf, strlen(fileBuf), baseUrl, (int) strlen(baseUrl), &nLinks);
+	char *linkBuffer = parser->Parse(fileBuf, strlen(fileBuf), baseUrl, (int)strlen(baseUrl), &nLinks);
 
 	// check for errors indicated by negative values
 	if (nLinks < 0) { nLinks = 0; }
@@ -36,44 +36,44 @@ void printData(UrlParts urlParts) {
 }
 
 bool handleHostUniquenessCheck(UrlParts urlParts) {
-	//cout << "\t  Checking host uniqueness... ";
+	cout << "\t  Checking host uniqueness... ";
 	if (prevHost.checkIfHostUnique(urlParts.host) == 0) {
-		//cout << "failed" << endl;
+		cout << "failed" << endl;
 		return false;
 	}
 	else {
-		//cout << "passed" << endl;
+		cout << "passed" << endl;
 		return true;
 	}
 }
 
 bool handleIPUniquenessCheck(char *address) {
-	//cout << "\t  Checking IP uniqueness... ";
+	cout << "\t  Checking IP uniqueness... ";
 	if (prevHost.checkIfIPUnique(address) == 0) {
-		//cout << "failed" << endl;
+		cout << "failed" << endl;
 		return false;
 	}
 	else {
-		//cout << "passed" << endl;
+		cout << "passed" << endl;
 	}
 
 	return true;
 }
 
-bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader, StatsHandler &stats) {
-	//DWORD startTime = timeGetTime();
-	/*if(isRobot == 1)
+bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader) {
+	DWORD startTime = timeGetTime();
+	if (isRobot == 1)
 		cout << "\t  Connecting on robots... ";
 	else
-		cout << "\t* Connecting on page... ";*/
+		cout << "\t* Connecting on page... ";
 
 	if (!socket.socket_connect(server))
 	{
-		//cout << "failed with " << WSAGetLastError() << endl;
+		cout << "failed with " << WSAGetLastError() << endl;
 		return false;
 	}
 
-	//cout << "done in " << timeGetTime() - startTime << " ms" << endl;
+	cout << "done in " << timeGetTime() - startTime << " ms" << endl;
 
 	char *req_body = new char[INITIAL_BUF_SIZE];
 
@@ -87,10 +87,10 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 
 	std::string send_req;
 
-	if(isRobot)
-		send_req = "HEAD /robots.txt HTTP/1.0\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
+	if (isRobot)
+		send_req = "HEAD /robots.txt/ HTTP/1.0\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
 		"\r\nConnection: close\r\n\r\n";
-	else 
+	else
 		send_req = "GET " + req + " HTTP/1.0\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
 		"\r\nConnection: close\r\n\r\n";
 
@@ -99,39 +99,36 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	bool iResult = socket.socket_send(req_body);
 	if (iResult == false)
 	{
-		//cout << "\n\t  failed with sending GET " << WSAGetLastError() << endl;
+		cout << "\n\t  failed with sending GET " << WSAGetLastError() << endl;
 		return false;
 	}
 
-	//startTime = timeGetTime();
-	//cout << "\t  Loading... ";
+	startTime = timeGetTime();
+	cout << "\t  Loading... ";
 	int read_state = socket.socket_read(isRobot);
 	if (read_state == -2) {
-		//cout << "failed with slow download" << endl;
+		cout << "failed with slow download" << endl;
 		return false;
 	}
 	else if (read_state == -1)
 	{
-		//cout << "failed with read " << WSAGetLastError() << endl;
+		cout << "failed with read " << WSAGetLastError() << endl;
 		return false;
 	}
 	else if (read_state == 0) {
-		//cout << "failed with exceeding max"<< endl;
+		cout << "failed with exceeding max" << endl;
 		return false;
 	}
 
-	//cout << "done in ms with " << socket.get_data_size_inbytes() << " bytes" << endl;
-	mtx.lock();
-	stats.incrementBytes(socket.get_data_size_inbytes());
-	mtx.unlock();
-
-	//cout << "\t  Verifying header... ";
+	cout << "done in " << timeGetTime() - startTime << " ms with " << socket.get_data_size_inbytes() << " bytes" << endl;
+	//if(isRobot)cout << "\ndata read: " << socket.get_webpage_data() << endl<<endl;
+	cout << "\t  Verifying header... ";
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
 
 	if (versionHTTP == NULL)
 	{
-		//cout << "failed with non-HTTP header" << endl;
+		cout << "failed with non-HTTP header" << endl;
 		return false;
 	}
 
@@ -143,7 +140,7 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 
 	int code = atoi(status_code);
 
-	//cout << " status code " << code << endl;
+	cout << " status code " << code << endl;
 	free(status_code);
 
 	std::string baseURL = "http://" + urlParts.host;
@@ -157,47 +154,33 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	if (isRobot && code < 400 || code >= 500) {
 		return false;
 	}
-	else if (isRobot) {
-		mtx.lock();
-		stats.incrementRobotsPassedCount(1);
-		mtx.unlock();
-	}
 
 	if (isRobot == 0 && code == HTTP_STATUS_OK)
 	{
-		mtx.lock();
-		stats.incrementCrawledURLCount(1);
-		mtx.unlock();
-		//startTime = timeGetTime();
-		//cout << "\t+ Parsing page... ";
+		startTime = timeGetTime();
+		cout << "\t+ Parsing page... ";
 		std::string response = strHTML.substr(headerEndPos + 4);
 		char *char_response = new char[response.length() + 1];
 		strcpy_s(char_response, response.size() + 1, response.c_str());
 		int nLinks = getLinkCount(char_response, char_baseURL);
-		mtx.lock();
-		stats.incrementTotalLinks(nLinks);
-		mtx.unlock();
-		//cout << "done "<< " ms with " << nLinks << " links" << endl;
+
+		cout << "done in " << timeGetTime() - startTime << " ms with " << nLinks << " links" << endl;
 	}
 
 	//free(char_baseURL);
 
-	/*if (isPrintHeader) {
+	if (isPrintHeader) {
 		std::string strHeader = strHTML.substr(0, headerEndPos);
 		cout << "\n\n--------------------------------------------------" << endl;
 		cout << strHeader << endl << endl << endl;
-	}*/
+	}
 
 	return true;
 }
 
-void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader, StatsHandler &stats) {
+void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader) {
 	if (handleHostUniquenessCheck(urlParts) == 0)
 		return;
-	
-	mtx.lock();
-	stats.incrementUniqueHost(1);
-	mtx.unlock();
 
 	//initilize socket
 	Socket mySocket, robotSocket;
@@ -214,15 +197,15 @@ void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader, StatsHa
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
 	DWORD IP = inet_addr(char_host);
 
-	//DWORD startTime = timeGetTime();
-	//cout << "\t  Doing DNS... ";
+	DWORD startTime = timeGetTime();
+	cout << "\t  Doing DNS... ";
 
 	if (IP == INADDR_NONE)
 	{
 		// if not a valid IP, then do a DNS lookup
 		if ((remote = gethostbyname(char_host)) == NULL)
 		{
-			//cout << "failed with " << WSAGetLastError() << endl;
+			cout << "failed with " << WSAGetLastError() << endl;
 			return;
 		}
 		else // take the first IP address and copy into sin_addr
@@ -239,24 +222,17 @@ void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader, StatsHa
 		address = char_host;
 	}
 
-	//cout << "done in " << timeGetTime() - startTime << " ms, found " << address << endl;
-	mtx.lock();
-	stats.incrementDNSCount(1);
-	mtx.unlock();
+	cout << "done in " << timeGetTime() - startTime << " ms, found " << address << endl;
 
 	if (handleIPUniquenessCheck(address) == 0)
 		return;
-
-	mtx.lock();
-	stats.incrementUniqueIPCount(1);
-	mtx.unlock();
 
 	// setup the port # and protocol type
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (justdoit(robotSocket, urlParts, true, false, ref(stats)) == 0)
+	if (justdoit(robotSocket, urlParts, true, false) == 0)
 		return;
-	if (justdoit(mySocket, urlParts, false, isPrintHeader, ref(stats)) == 0)
+	if (justdoit(mySocket, urlParts, false, isPrintHeader) == 0)
 		return;
 }
