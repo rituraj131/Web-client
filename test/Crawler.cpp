@@ -5,58 +5,59 @@ static mutex mtx;
 static PrevHost prevHost;
 
 void incrementDNSCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementDNSCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementUniqueIPCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementUniqueIPCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementBytesRead(Stats &stats, long bytesRead) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementBytesRead(bytesRead);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementRobotsPassedCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementRobotsPassedCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementCrawledURLCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementCrawledURLCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementLinksCount(Stats &stats, int count) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementLinksCount(count);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 void incrementHeaderCount(Stats &stats, string header) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementHeaderCount(header);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 bool checkIPUniquenessCrawler(char *address) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	bool ret = true;
 	if (prevHost.checkIfIPUnique(address) == 0)
 		ret = false;
-	mtx.unlock();
+	//mtx.unlock();
 	return ret;
 }
 
 int getLinkCountCrawler(char *fileBuf, char *baseUrl)
 {
+	std::lock_guard<std::mutex> lk(mtx);
 	// create new parser object
 	HTMLParserBase *parser = new HTMLParserBase;
 
