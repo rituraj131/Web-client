@@ -60,6 +60,18 @@ bool handleIPUniquenessCheck(char *address) {
 	return true;
 }
 
+
+void printReadData(std::string data) {
+	int pos = 0;
+	cout << "printData\n";
+	while (data.length() > pos) {
+		int newPos = min(data.length(), pos + 200);
+		cout <<data.substr(pos, newPos) << endl;
+		pos = newPos;
+		Sleep(20000);
+	}
+}
+
 bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader) {
 	DWORD startTime = timeGetTime();
 	if (isRobot == 1)
@@ -88,10 +100,10 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	std::string send_req;
 
 	if (isRobot)
-		send_req = "HEAD /robots.txt/ HTTP/1.0\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
+		send_req = "HEAD /robots.txt HTTP/1.1\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
 		"\r\nConnection: close\r\n\r\n";
 	else
-		send_req = "GET " + req + " HTTP/1.0\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
+		send_req = "GET " + req + " HTTP/1.1\r\nUser-agent: RituRaj/1.0\r\nHost: " + urlParts.host +
 		"\r\nConnection: close\r\n\r\n";
 
 	strcpy_s(req_body, send_req.size() + 1, send_req.c_str());
@@ -121,7 +133,7 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	}
 
 	cout << "done in " << timeGetTime() - startTime << " ms with " << socket.get_data_size_inbytes() << " bytes" << endl;
-	//if(isRobot)cout << "\ndata read: " << socket.get_webpage_data() << endl<<endl;
+	//if (!isRobot)printReadData(socket.get_webpage_data());
 	cout << "\t  Verifying header... ";
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
@@ -231,8 +243,8 @@ void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (justdoit(robotSocket, urlParts, true, false) == 0)
-		return;
+	//if (justdoit(robotSocket, urlParts, true, false) == 0)
+		//return;
 	if (justdoit(mySocket, urlParts, false, isPrintHeader) == 0)
 		return;
 }

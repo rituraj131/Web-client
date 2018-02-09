@@ -12,83 +12,83 @@ void statsThreadFunc(Stats &);
 void urlProducerThreadFunc(Stats &, string);
 
 void changeThreadCount(Stats &stats, int count) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.changeThreadCount(count);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 int getActiveThreadCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getActiveThreadCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 void incrementURlExtractedCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementExtractedURLCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 int getExtractedURLCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getExtractedURLCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 void incrementUniqueHostCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	stats.incrementUniqueHostCount();
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 int getUniqueHostCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getUniqueHostCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 int getDNSCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getDNSCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 int getUniqueIPCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getUniqueIPCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 long getBytesRead(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	long count = stats.getBytesRead();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 int getRobotsPassedCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getRobotsPassedCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 int getCrawledURLCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getCrawledURLCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
 int getLinksCount(Stats &stats) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	int count = stats.getLinksCount();
-	mtx.unlock();
+	//mtx.unlock();
 	return count;
 }
 
@@ -98,20 +98,20 @@ ThreadPool::ThreadPool()
 }
 
 bool checkHostUniqueness(UrlParts urlParts) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	bool ret = true;
 	if (prevHost.checkIfHostUnique(urlParts.host) == 0)
 		ret = false;
-	mtx.unlock();
+	//mtx.unlock();
 	return ret;
 }
 
 bool checkIPUniqueness(char *address) {
-	mtx.lock();
+	std::lock_guard<std::mutex> lk(mtx);
 	bool ret = true;
 	if (prevHost.checkIfIPUnique(address) == 0)
 		ret = false;
-	mtx.unlock();
+	//mtx.unlock();
 	return ret;
 }
 
