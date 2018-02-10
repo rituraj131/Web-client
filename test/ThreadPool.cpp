@@ -156,34 +156,62 @@ void crawlerThreadFunc(Stats &stats) {
 		std::string url = urlQueue.front();
 		urlQueue.pop();
 		lk.unlock();
-		changeThreadCount(ref(stats), 1);
+		{
+			std::lock_guard<std::mutex> lk(mtx);
+			stats.changeThreadCount(1);
+		}
+		//changeThreadCount(ref(stats), 1);
 		if (url.compare("-1") == 0) {
-			changeThreadCount(ref(stats), -1);
+			{
+				std::lock_guard<std::mutex> lk(mtx);
+				stats.changeThreadCount(-1);
+			}
+			//changeThreadCount(ref(stats), -1);
 			if (!producerDone)
 				continue;
 			else
 				break;
 		}
 
-		incrementURlExtractedCount(ref(stats));
+		{
+			std::lock_guard<std::mutex> lk(mtx);
+			stats.incrementExtractedURLCount();
+		}
+		//incrementURlExtractedCount(ref(stats));
 
 		UrlParts urlParts = validate.urlParser(url);
 		if (urlParts.isValid == -10) { //some failure in parsing observed!
-			changeThreadCount(ref(stats), -1);	
+			{
+				std::lock_guard<std::mutex> lk(mtx);
+				stats.changeThreadCount(-1);
+			}
+			//changeThreadCount(ref(stats), -1);	
 			continue;
 		}
 
 		if (checkHostUniqueness(urlParts) == 0) {
-			changeThreadCount(ref(stats), -1);
+			{
+				std::lock_guard<std::mutex> lk(mtx);
+				stats.changeThreadCount(-1);
+			}
+			//changeThreadCount(ref(stats), -1);
 			continue;
 		}
 
-		incrementUniqueHostCount(ref(stats));
+		{
+			std::lock_guard<std::mutex> lk(mtx);
+			stats.incrementUniqueHostCount();
+		}
+		//incrementUniqueHostCount(ref(stats));
 
 		Crawler crawler;
 		crawler.crawl(ref(stats), urlParts,prevHost);
 
-		changeThreadCount(ref(stats), -1);
+		{
+			std::lock_guard<std::mutex> lk(mtx);
+			stats.changeThreadCount(-1);
+		}
+		//changeThreadCount(ref(stats), -1);
 	}
 
 	if(getActiveThreadCount(ref(stats)) == 0)

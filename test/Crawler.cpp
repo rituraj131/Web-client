@@ -4,7 +4,7 @@
 mutex mtx[10];
 //static PrevHost prevHost;
 
-void incrementDNSCount(Stats &stats) {
+/*void incrementDNSCount(Stats &stats) {
 	std::lock_guard<std::mutex> lk(mtx[0]);
 	stats.incrementDNSCount();
 	//mtx.unlock();
@@ -44,7 +44,7 @@ void incrementHeaderCount(Stats &stats, string header) {
 	std::lock_guard<std::mutex> lk(mtx[6]);
 	stats.incrementHeaderCount(header);
 	//mtx.unlock();
-}
+}*/
 
 bool checkIPUniquenessCrawler(char *address, PrevHost prevHost) {
 	std::lock_guard<std::mutex> lk(mtx[7]);
@@ -111,7 +111,11 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	else if (read_state == 0)//exceeding max read limit
 		return false;
 
-	incrementBytesRead(ref(stats), socket.get_data_size_inbytes());
+	{
+		std::lock_guard<std::mutex> lk(mtx[2]);
+		stats.incrementBytesRead(socket.get_data_size_inbytes());
+	}
+	//incrementBytesRead(ref(stats), socket.get_data_size_inbytes());
 
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
@@ -125,8 +129,11 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	memcpy(status_code, versionHTTP, 4); //status code length 3 and one for '\0'
 	status_code[3] = '\0';
 	
-	if(!isRobot)
-		incrementHeaderCount(ref(stats), status_code);
+	if (!isRobot) {
+		std::lock_guard<std::mutex> lk(mtx[6]);
+		stats.incrementHeaderCount(status_code);
+		//incrementHeaderCount(ref(stats), status_code);
+	}
 	
 	int code = atoi(status_code);
 
@@ -139,12 +146,18 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 		return false;
 	}
 	else if (isRobot) {
-		incrementRobotsPassedCount(ref(stats));
+		std::lock_guard<std::mutex> lk(mtx[3]);
+		stats.incrementRobotsPassedCount();
+		//incrementRobotsPassedCount(ref(stats));
 		return true;
 	}
 
 	if (code == HTTP_STATUS_OK) {
-		incrementCrawledURLCount(ref(stats));
+		{
+			std::lock_guard<std::mutex> lk(mtx[4]);
+			stats.incrementCrawledURLCount();
+		}
+		//incrementCrawledURLCount(ref(stats));
 
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
@@ -153,7 +166,11 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 		char *char_response = new char[response.length() + 1];
 		strcpy_s(char_response, response.size() + 1, response.c_str());
 		int nLinks = getLinkCountCrawler(char_response, char_baseURL);
-		incrementLinksCount(ref(stats), nLinks);
+		//incrementLinksCount(ref(stats), nLinks);
+		{
+			std::lock_guard<std::mutex> lk(mtx[5]);
+			stats.incrementLinksCount(nLinks);
+		}
 	}
 }
 
@@ -190,11 +207,19 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts, PrevHost prevHost) {
 		address = char_host;
 	}
 
-	incrementDNSCount(ref(stats));
+	{
+		std::lock_guard<std::mutex> lk(mtx[0]);
+		stats.incrementDNSCount();
+	}
+	//incrementDNSCount(ref(stats));
 	if (checkIPUniquenessCrawler(address, prevHost) == 0)
 		return;
 
-	incrementUniqueIPCount(ref(stats));
+	{
+		std::lock_guard<std::mutex> lk(mtx[1]);
+		stats.incrementUniqueIPCount();
+	}
+	//incrementUniqueIPCount(ref(stats));
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
