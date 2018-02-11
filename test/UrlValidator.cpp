@@ -87,7 +87,7 @@ string getQuery(string url) {
 }
 
 UrlParts UrlValidator::urlParser(string url) {
-	//cout << "\t  Parsing URL... ";
+	cout << "\t  Parsing URL... ";
 	UrlParts urlParts;
 
 	int port_no;
@@ -154,7 +154,7 @@ UrlParts UrlValidator::urlParser(string url) {
 	urlParts.path = path;
 	urlParts.query = query;
 
-	/*cout << "host " << urlParts.host << ", port " << urlParts.port_no <<
+	cout << "host " << urlParts.host << ", port " << urlParts.port_no <<
 		", request /" << urlParts.path << (urlParts.query.size() > 0 ? "?" : "") << urlParts.query << endl;
 
 	/*cout << "scheme: " << urlParts.scheme << endl;

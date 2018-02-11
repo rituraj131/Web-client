@@ -74,7 +74,7 @@ queue<string> Utility::split(std::string s, string delimiter) {
 	return q;
 }
 
-unsigned long Utility::HexToDec(char hex[]) {
+unsigned long HexToDec(char hex[]) {
 	char *hexstr;
 	int length = 0;
 	const int base = 16;     // Base of Hexadecimal Number
@@ -109,21 +109,47 @@ unsigned long Utility::HexToDec(char hex[]) {
 
 bool Utility::isItChunked(string header) {
 	string line;
-	const string chunked_ident_str = "Transfer-Encoding:  chunked";
+	const string chunked_ident_str = "Transfer-Encoding:";
 
 	int pos = 0;
-	string buff = "";
+
 	while (pos < header.length()) {
 		pos = header.find_first_of("\r\n");
 		line = header.substr(0, pos);
+		if (line.find(chunked_ident_str) == 0) {
+			line = line.substr(chunked_ident_str.length());
 
-		if (line.compare(chunked_ident_str) == 0)
-			return true;
+			//trim it out
+			line = line.substr(line.find_first_not_of(' '),
+				(line.find_last_not_of(' ') - line.find_first_not_of(' ')) + 1);
+			
+			if(line.compare("chunked") == 0)
+				return true;
+		}
 
 		pos += 2;
 		header = header.substr(pos);
 	}
 	return false;
+}
+
+string Utility::dechunnkedBody(string body) {
+	string res;
+
+	while (body.size() > 0) {
+		int pos = body.find_first_of("\r\n");
+		string hexChunkSize = body.substr(0, pos);
+
+		unsigned long decnum;
+		char *hex_char = new char[hexChunkSize.length() + 1];
+		strcpy_s(hex_char, hexChunkSize.size() + 1, hexChunkSize.c_str());
+		decnum = HexToDec(hex_char);
+
+		res += body.substr(pos + 2, decnum);
+		body = body.substr(pos + 2 + decnum);	
+	}
+
+	return res;
 }
 
 void Utility::printURLList(vector<string> list) {

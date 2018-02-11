@@ -74,10 +74,6 @@ void printReadData(std::string data) {
 }
 
 
-void dechunnkResponse(string response) {
-	
-}
-
 bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader) {
 	DWORD startTime = timeGetTime();
 	if (isRobot == 1)
@@ -176,17 +172,21 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 		return true;
 
 	std::string strHeader = strHTML.substr(0, headerEndPos);
+	std::string response = strHTML.substr(headerEndPos + 4);
 	Utility utility;
 	if (utility.isItChunked(strHeader)) {
-		cout << "\t  Dechunking... ";
+		cout << "\t  Dechunking... before "<<response.size();
+		string body = utility.dechunnkedBody(response);
+		cout << " now "<<body.size() << endl;
+		//cout << body << endl;
+		response = body;
 	}
 	
-
 	if (code == HTTP_STATUS_OK)
 	{
 		startTime = timeGetTime();
 		cout << "\t+ Parsing page... ";
-		std::string response = strHTML.substr(headerEndPos + 4);
+		//response = strHTML.substr(headerEndPos + 4);
 		char *char_response = new char[response.length() + 1];
 		strcpy_s(char_response, response.size() + 1, response.c_str());
 		
@@ -204,8 +204,8 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 }
 
 void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader) {
-	if (handleHostUniquenessCheck(urlParts) == 0)
-		return;
+	/*if (handleHostUniquenessCheck(urlParts) == 0)
+		return;*/
 
 	//initilize socket
 	Socket mySocket, robotSocket;
@@ -249,8 +249,8 @@ void GetAndParse::getAndParseHTML(UrlParts urlParts, bool isPrintHeader) {
 
 	cout << "done in " << timeGetTime() - startTime << " ms, found " << address << endl;
 
-	if (handleIPUniquenessCheck(address) == 0)
-		return;
+	/*if (handleIPUniquenessCheck(address) == 0)
+		return;*/
 
 	// setup the port # and protocol type
 	server.sin_family = AF_INET;

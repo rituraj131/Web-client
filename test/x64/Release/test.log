@@ -1,12 +1,20 @@
-﻿  GetAndParse.cpp
+﻿  UrlValidator.cpp
 c:\users\rituraj131\desktop\code\csce612-hw1-part3\test\UrlValidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-GetAndParse.cpp(17): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-GetAndParse.cpp(69): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-GetAndParse.cpp(170): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(20): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(24): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(28): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(47): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(66): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(67): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(104): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+UrlValidator.cpp(132): warning C4101: 'e': unreferenced local variable
   Generating code
-  1 of 1124 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  5 of 1124 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    4 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 HTMLParser_release_x64.lib(HTMLParserBase.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_release_x64.lib(HTMLParserBase.obj)' or at 'C:\Users\rituraj131\Desktop\Code\CSCE612-HW1-Part3\x64\Release\HTMLParser.pdb'; linking object as if no debug info
 HTMLParser_release_x64.lib(stdafx.obj) : warning LNK4099: PDB 'HTMLParser.pdb' was not found with 'HTMLParser_release_x64.lib(stdafx.obj)' or at 'C:\Users\rituraj131\Desktop\Code\CSCE612-HW1-Part3\x64\Release\HTMLParser.pdb'; linking object as if no debug info
