@@ -131,25 +131,20 @@ void crawlerThreadFunc() {
 	UrlValidator validate;
 	Utility utility;
 	changeThreadCount(1);
-
+	string url;
 	while (true) {
-		std::unique_lock<std::mutex> lk(mtx[18]);
-		if (urlQueue.empty()) {
-			if (producerDone)
-				break;
-			continue;
-		}
-		cv.wait(lk, [] { return producerDone || !urlQueue.empty(); });
-
-		std::string url = urlQueue.front();
-		urlQueue.pop();
-		lk.unlock();
-	
-		if (url.compare("-1") == 0) {
-			if (!producerDone)
+		{
+			std::unique_lock<std::mutex> lk(mtx[18]);
+			if (urlQueue.empty()) {
+				if (producerDone)
+					break;
 				continue;
-			else
-				break;
+			}
+
+			cv.wait(lk, [] { return producerDone || !urlQueue.empty(); });
+
+			url = urlQueue.front();
+			urlQueue.pop();
 		}
 
 		incrementURlExtractedCount();
@@ -165,6 +160,7 @@ void crawlerThreadFunc() {
 
 		crawlMyPage(urlParts);
 	}
+
 	changeThreadCount(-1);
 
 	if(getActiveThreadCount() == 0)
@@ -361,6 +357,7 @@ void crawlMyPage(UrlParts urlParts) {
 	
 	if (checkIPUniqueness(address) == 0)
 		return;
+
 	incrementUniqueIPCount();
 
 	server.sin_family = AF_INET;

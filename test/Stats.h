@@ -2,7 +2,6 @@
 #include "common.h"
 class Stats
 {
-	std::queue<std::string> q;
 	std::atomic<int> activeThreadCount, extractedURLCount, uniqueHostCount,
 		dnsCount, uniqueIPCount, robotsPassedCount, crawledURLCount, linksCount;
 	std::atomic<int> header2XX, header3XX, header4XX, header5XX, headerOthers;
@@ -10,10 +9,6 @@ class Stats
 
 public:
 	Stats();
-	/*void addURLToQueue(std::string);
-	std::string popURLFromQueue();
-	int getQueueSize();
-	bool isURLQueueEmpty();*/
 	void changeThreadCount(int);
 	int getActiveThreadCount();
 	void incrementExtractedURLCount();

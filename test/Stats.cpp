@@ -1,4 +1,5 @@
 #include "Stats.h"
+
 Stats::Stats() {
 	activeThreadCount = 0;
 	extractedURLCount = 0;
@@ -15,26 +16,6 @@ Stats::Stats() {
 	header5XX = 0;
 	headerOthers = 0;
 }
-
-/*void Stats::addURLToQueue(std::string url) {
-	q.push(url);
-}
-
-bool Stats::isURLQueueEmpty() {
-	return q.empty();
-}
-
-std::string Stats::popURLFromQueue() {
-	if (q.size() == 0)
-		return "-1";
-	std::string url = q.front();
-	q.pop();
-	return url;
-}
-
-int Stats::getQueueSize() {
-	return q.size();
-}*/
 
 void Stats::changeThreadCount(int count) {
 	activeThreadCount += count;
