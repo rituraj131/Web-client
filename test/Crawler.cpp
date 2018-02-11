@@ -1,7 +1,7 @@
 #include "Crawler.h"
 
-static struct sockaddr_in server = { 0 };
-static mutex mtx;
+//static struct sockaddr_in server = { 0 };
+mutex mtx;
 static PrevHost prevHost;
 
 void incrementDNSCount(Stats &stats) {
@@ -71,7 +71,7 @@ int getLinkCountCrawler(char *fileBuf, char *baseUrl)
 	return nLinks;
 }
 
-bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot) {
+bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server) {
 	if (!socket.socket_connect(server))
 		return false;
 
@@ -160,7 +160,7 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
-
+	struct sockaddr_in server = { 0 };
 	struct hostent *remote;
 	in_addr addr;
 	char *address;
@@ -198,8 +198,8 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (crawlRealDeal(ref(stats), robotSocket, urlParts, true) == 0)
+	if (crawlRealDeal(ref(stats), robotSocket, urlParts, true, server) == 0)
 		return;
 
-	crawlRealDeal(ref(stats), mySocket, urlParts, false);
+	crawlRealDeal(ref(stats), mySocket, urlParts, false, server);
 }
