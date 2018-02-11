@@ -12,6 +12,6 @@
 class ThreadPool
 {
 public:
-	void letTheGameBegin(Stats &, int, string);
+	void letTheGameBegin(int, string);
 };
 

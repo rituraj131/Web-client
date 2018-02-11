@@ -2,70 +2,71 @@
 
 std::mutex mtx[20];
 PrevHost prevHost;
+Stats stats;
 static bool producerDone = false, crawlerDone = false;
 static int threadCount = 0;
 static std::condition_variable cv;
 static std::queue<std::string> urlQueue;
 
-void crawlerThreadFunc(Stats &);
-void statsThreadFunc(Stats &);
-void urlProducerThreadFunc(Stats &, string);
-void crawlMyPage(Stats &, UrlParts);
-void printCurrStatistics(Stats &, int, int, float);
-void printFinalStatistics(Stats &, int);
+void crawlerThreadFunc();
+void statsThreadFunc();
+void urlProducerThreadFunc(string);
+void crawlMyPage(UrlParts);
+void printCurrStatistics(int, int, float);
+void printFinalStatistics(int);
 
-void incrementDNSCount(Stats &stats) {
+void incrementDNSCount() {
 	std::lock_guard<std::mutex> lk(mtx[0]);
 	stats.incrementDNSCount();
 }
 
-void incrementUniqueIPCount(Stats &stats) {
+void incrementUniqueIPCount() {
 	std::lock_guard<std::mutex> lk(mtx[1]);
 	stats.incrementUniqueIPCount();
 }
 
-void incrementBytesRead(Stats &stats, long bytesRead) {
+void incrementBytesRead(long bytesRead) {
 	std::lock_guard<std::mutex> lk(mtx[2]);
 	stats.incrementBytesRead(bytesRead);
 }
 
-void incrementRobotsPassedCount(Stats &stats) {
+void incrementRobotsPassedCount() {
 	std::lock_guard<std::mutex> lk(mtx[3]);
 	stats.incrementRobotsPassedCount();
 }
 
-void incrementCrawledURLCount(Stats &stats) {
+void incrementCrawledURLCount() {
 	std::lock_guard<std::mutex> lk(mtx[4]);
 	stats.incrementCrawledURLCount();
 }
 
-void incrementLinksCount(Stats &stats, int count) {
+void incrementLinksCount(int count) {
 	std::lock_guard<std::mutex> lk(mtx[5]);
 	stats.incrementLinksCount(count);
 }
 
-void incrementHeaderCount(Stats &stats, string header) {
+void incrementHeaderCount(string header) {
 	std::lock_guard<std::mutex> lk(mtx[6]);
 	stats.incrementHeaderCount(header);
 }
 
-void changeThreadCount(Stats &stats, int count) {
+void changeThreadCount(int count) {
 	std::lock_guard<std::mutex> lk(mtx[7]);
 	stats.changeThreadCount(count);
 }
 
-int getActiveThreadCount(Stats &stats) {
+int getActiveThreadCount() {
 	std::lock_guard<std::mutex> lk(mtx[8]);
 	int count = stats.getActiveThreadCount();
 	return count;
 }
 
-void incrementURlExtractedCount(Stats &stats) {
+void incrementURlExtractedCount() {
 	std::lock_guard<std::mutex> lk(mtx[9]);
 	stats.incrementExtractedURLCount();
 }
 
-void incrementUniqueHostCount(Stats &stats) {
+void incrementUniqueHostCount() {
 	std::lock_guard<std::mutex> lk(mtx[10]);
 	stats.incrementUniqueHostCount();
 }
@@ -102,15 +103,15 @@ bool checkIPUniqueness(char *address) {
 	return ret;
 }
 
-void ThreadPool::letTheGameBegin(Stats &stats, int thread_count, string filename) {
+void ThreadPool::letTheGameBegin(int thread_count, string filename) {
 	threadCount = thread_count;
-	std::thread urlProducerThread(urlProducerThreadFunc, ref(stats), filename);
+	std::thread urlProducerThread(urlProducerThreadFunc, filename);
 
 	std::thread *crawlerThreads = new std::thread[thread_count];
-	std::thread statsThread(statsThreadFunc, std::ref(stats));
+	std::thread statsThread(statsThreadFunc);
 
 	for (int i = 0; i < threadCount; i++) {
-		crawlerThreads[i] = std::thread(crawlerThreadFunc, std::ref(stats));
+		crawlerThreads[i] = std::thread(crawlerThreadFunc);
 	}
 
 	if (urlProducerThread.joinable())
@@ -126,10 +127,10 @@ void ThreadPool::letTheGameBegin(Stats &stats, int thread_count, string filename
 
 }
 
-void crawlerThreadFunc(Stats &stats) {
+void crawlerThreadFunc() {
 	UrlValidator validate;
 	Utility utility;
-	changeThreadCount(ref(stats), 1);
+	changeThreadCount(1);
 
 	while (true) {
 		std::unique_lock<std::mutex> lk(mtx[18]);
@@ -151,26 +152,26 @@ void crawlerThreadFunc(Stats &stats) {
 				break;
 		}
 
-		incrementURlExtractedCount(ref(stats));
+		incrementURlExtractedCount();
 
-		UrlParts urlParts = validate.urlParser(url);
+		UrlParts urlParts = validate.urlParser(url, false);
 		if (urlParts.isValid == -10)
 			continue;
 
 		if (checkHostUniqueness(urlParts) == 0)
 			continue;
 
-		incrementUniqueHostCount(ref(stats));
+		incrementUniqueHostCount();
 
-		crawlMyPage(ref(stats), urlParts);
+		crawlMyPage(urlParts);
 	}
-	changeThreadCount(ref(stats), -1);
+	changeThreadCount(-1);
 
-	if(getActiveThreadCount(ref(stats)) == 0)
+	if(getActiveThreadCount() == 0)
 		crawlerDone = true;
 }
 
-void statsThreadFunc(Stats &stats) {
+void statsThreadFunc() {
 	HANDLE hTimer = NULL;
 	LARGE_INTEGER liDueTime;
 
@@ -203,16 +204,16 @@ void statsThreadFunc(Stats &stats) {
 			int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
 			lastPagesCount = tempRobotsPassedCount;
 			
-			printCurrStatistics(ref(stats), secCount, thisPagesCount/2, dataThisTime);
+			printCurrStatistics(secCount, thisPagesCount/2, dataThisTime);
 			
 			secCount += 2;
 		//}
 	}
 	secCount -= 2;
-	printFinalStatistics(ref(stats), secCount);
+	printFinalStatistics(secCount);
 }
 
-void urlProducerThreadFunc(Stats &stats, string filename) {
+void urlProducerThreadFunc(string filename) {
 	std::ifstream ifs(filename);
 	if (!ifs) {
 		producerDone = true;
@@ -244,7 +245,7 @@ void urlProducerThreadFunc(Stats &stats, string filename) {
 	cv.notify_all();
 }
 
-bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server) {
+bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server) {
 	if (!socket.socket_connect(server))
 		return false;
 
@@ -278,7 +279,7 @@ bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	if (read_state == -2 || read_state == -1 || read_state == 0)
 		return false;
 
-	incrementBytesRead(ref(stats), socket.get_data_size_inbytes());
+	incrementBytesRead(socket.get_data_size_inbytes());
 
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
@@ -293,7 +294,7 @@ bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	status_code[3] = '\0';
 
 	if (!isRobot) {
-		incrementHeaderCount(ref(stats), status_code);
+		incrementHeaderCount(status_code);
 	}
 
 	int code = atoi(status_code);
@@ -307,12 +308,12 @@ bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 		return false;
 	}
 	else if (isRobot) {
-		incrementRobotsPassedCount(ref(stats));
+		incrementRobotsPassedCount();
 		return true;
 	}
 
 	if (code == HTTP_STATUS_OK) {
-		incrementCrawledURLCount(ref(stats));
+		incrementCrawledURLCount();
 
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
@@ -322,11 +323,11 @@ bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 		strcpy_s(char_response, response.size() + 1, response.c_str());
 		int nLinks = getLinkCountInThePage(char_response, char_baseURL);
 		
-		incrementLinksCount(ref(stats), nLinks);
+		incrementLinksCount(nLinks);
 	}
 }
 
-void crawlMyPage(Stats &stats, UrlParts urlParts) {
+void crawlMyPage(UrlParts urlParts) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
@@ -356,22 +357,22 @@ void crawlMyPage(Stats &stats, UrlParts urlParts) {
 		server.sin_addr.S_un.S_addr = IP;
 		address = char_host;
 	}
-	incrementDNSCount(ref(stats));
+	incrementDNSCount();
 	
 	if (checkIPUniqueness(address) == 0)
 		return;
-	incrementUniqueIPCount(ref(stats));
+	incrementUniqueIPCount();
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (finishMyCrawl(ref(stats), robotSocket, urlParts, true, server) == 0) // for robots.txt
+	if (finishMyCrawl(robotSocket, urlParts, true, server) == 0) // for robots.txt
 		return;
 
-	finishMyCrawl(ref(stats), mySocket, urlParts, false, server);
+	finishMyCrawl(mySocket, urlParts, false, server);
 }
 
-void printCurrStatistics(Stats &stats, int secCount, int thisPagesCount, float dataThisTime) {
+void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {
 	std::printf("[%3d] %4d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n",
 		secCount, stats.getActiveThreadCount(), urlQueue.size(),
 		stats.getExtractedURLCount(), stats.getUniqueHostCount(),
@@ -381,7 +382,7 @@ void printCurrStatistics(Stats &stats, int secCount, int thisPagesCount, float d
 	std::printf("      *** crawling %3d pps @ %.1f Mbps\n", thisPagesCount, dataThisTime);
 }
 
-void printFinalStatistics(Stats &stats, int secCount) {
+void printFinalStatistics(int secCount) {
 	std::cout << endl;
 	std::cout << "Final Report" << endl;
 	std::cout << "---------------" << endl;

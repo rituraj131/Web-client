@@ -4,6 +4,6 @@
 class UrlValidator
 {
 public:
-	UrlParts urlParser(std::string);
+	UrlParts urlParser(std::string, bool);
 };
 
