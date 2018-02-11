@@ -1,53 +1,53 @@
 #include "Crawler.h"
 
 //static struct sockaddr_in server = { 0 };
-mutex mtx;
-static PrevHost prevHost;
+mutex mtx[10];
+//static PrevHost prevHost;
 
 void incrementDNSCount(Stats &stats) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[0]);
 	stats.incrementDNSCount();
 	//mtx.unlock();
 }
 
 void incrementUniqueIPCount(Stats &stats) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[1]);
 	stats.incrementUniqueIPCount();
 	//mtx.unlock();
 }
 
 void incrementBytesRead(Stats &stats, long bytesRead) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[2]);
 	stats.incrementBytesRead(bytesRead);
 	//mtx.unlock();
 }
 
 void incrementRobotsPassedCount(Stats &stats) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[3]);
 	stats.incrementRobotsPassedCount();
 	//mtx.unlock();
 }
 
 void incrementCrawledURLCount(Stats &stats) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[4]);
 	stats.incrementCrawledURLCount();
 	//mtx.unlock();
 }
 
 void incrementLinksCount(Stats &stats, int count) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[5]);
 	stats.incrementLinksCount(count);
 	//mtx.unlock();
 }
 
 void incrementHeaderCount(Stats &stats, string header) {
-	std::lock_guard<std::mutex> lk(mtx);
+	std::lock_guard<std::mutex> lk(mtx[6]);
 	stats.incrementHeaderCount(header);
 	//mtx.unlock();
 }
 
-bool checkIPUniquenessCrawler(char *address) {
-	std::lock_guard<std::mutex> lk(mtx);
+bool checkIPUniquenessCrawler(char *address, PrevHost prevHost) {
+	std::lock_guard<std::mutex> lk(mtx[7]);
 	bool ret = true;
 	if (prevHost.checkIfIPUnique(address) == 0)
 		ret = false;
@@ -57,7 +57,7 @@ bool checkIPUniquenessCrawler(char *address) {
 
 int getLinkCountCrawler(char *fileBuf, char *baseUrl)
 {
-	std::lock_guard<std::mutex> lk(mtx);
+	//std::lock_guard<std::mutex> lk(mtx[8]);
 	// create new parser object
 	HTMLParserBase *parser = new HTMLParserBase;
 
@@ -124,7 +124,10 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 
 	memcpy(status_code, versionHTTP, 4); //status code length 3 and one for '\0'
 	status_code[3] = '\0';
-
+	
+	if(!isRobot)
+		incrementHeaderCount(ref(stats), status_code);
+	
 	int code = atoi(status_code);
 
 	std::string baseURL = "http://" + urlParts.host;
@@ -139,8 +142,6 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 		incrementRobotsPassedCount(ref(stats));
 		return true;
 	}
-	
-	incrementHeaderCount(ref(stats), status_code);
 
 	if (code == HTTP_STATUS_OK) {
 		incrementCrawledURLCount(ref(stats));
@@ -156,7 +157,7 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	}
 }
 
-void Crawler::crawl(Stats &stats, UrlParts urlParts) {
+void Crawler::crawl(Stats &stats, UrlParts urlParts, PrevHost prevHost) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
@@ -190,7 +191,7 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts) {
 	}
 
 	incrementDNSCount(ref(stats));
-	if (checkIPUniquenessCrawler(address) == 0)
+	if (checkIPUniquenessCrawler(address, prevHost) == 0)
 		return;
 
 	incrementUniqueIPCount(ref(stats));

@@ -1,6 +1,7 @@
 #include "ThreadPool.h"
 
-static mutex mtx;
+mutex mtx;
+//play with it
 static PrevHost prevHost;
 static bool producerDone = false, crawlerDone = false;
 static int threadCount = 0;
@@ -143,6 +144,7 @@ void crawlerThreadFunc(Stats &stats) {
 	UrlValidator validate;
 	Utility utility;
 	while (true) {
+		//check if lock is not getting released
 		std::unique_lock<std::mutex> lk(mtx);
 		if (urlQueue.empty()) {
 			if (producerDone)
@@ -179,7 +181,7 @@ void crawlerThreadFunc(Stats &stats) {
 		incrementUniqueHostCount(ref(stats));
 
 		Crawler crawler;
-		crawler.crawl(ref(stats), urlParts);
+		crawler.crawl(ref(stats), urlParts,prevHost);
 
 		changeThreadCount(ref(stats), -1);
 	}
@@ -203,7 +205,6 @@ void statsThreadFunc(Stats &stats) {
 			return;
 		}
 
-		// Set a timer to wait for 10 seconds.
 		if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
 		{
 			printf("SetWaitableTimer failed (%d)\n", GetLastError());
@@ -214,7 +215,7 @@ void statsThreadFunc(Stats &stats) {
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			printf("WaitForSingleObject failed (%d)\n", GetLastError());
 		else {
-			printf("[%3d] %5d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n",
+			printf("[%3d] %4d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n",
 				secCount, getActiveThreadCount(ref(stats)), urlQueue.size(), 
 				getExtractedURLCount(ref(stats)), getUniqueHostCount(ref(stats)),
 				getDNSCount(ref(stats)), getUniqueIPCount(ref(stats)), 
@@ -228,8 +229,9 @@ void statsThreadFunc(Stats &stats) {
 			int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
 			lastPagesCount = tempRobotsPassedCount;
 			
-			cout << "      *** crawling " << thisPagesCount / 2 << " pps @ " << 
-				std::setprecision(2)<<dataThisTime << " Mbps\n\n";
+			printf("      *** crawling %3d pps @ %.1f Mbps\n", thisPagesCount / 2, dataThisTime);
+			/*cout << "      *** crawling " << thisPagesCount / 2 << " pps @ " << 
+				std::setprecision(2)<<dataThisTime << " Mbps\n\n";*/
 			//printf("      *** crawling %.1f pps @ %.2f Mbps\n\n", thisPagesCount/2, (dataThisTime));
 			secCount += 2;
 		}

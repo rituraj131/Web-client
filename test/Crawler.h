@@ -10,6 +10,6 @@
 class Crawler
 {
 public:
-	void Crawler::crawl(Stats &, UrlParts);
+	void Crawler::crawl(Stats &, UrlParts, PrevHost);
 };
 
