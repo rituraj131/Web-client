@@ -20,5 +20,7 @@ public:
 	void printURLList(vector<string> list);
 	int getThreadCount(std::string count);
 	void printData(UrlParts urlParts);
+	bool Utility::isItChunked(string);
+	unsigned long HexToDec(char []);
 };
 

@@ -4,9 +4,11 @@
 #include "common.h"
 #include "PrevHost.h"
 #include "MySocket.h"
+#include "Utility.h"
 #include "HTMLParserBase.h"
 #define INITIAL_BUF_SIZE 8192
 #define HTTP_STATUS_OK 200
+
 using namespace std;
 class GetAndParse
 {

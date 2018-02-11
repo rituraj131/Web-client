@@ -3,6 +3,7 @@
 static PrevHost prevHost;
 struct sockaddr_in server = { 0 };
 
+const static string chunked_ident_str = "Transfer-Encoding: chunked";
 /*
 parse and return number of links in the webpage,
 webpage content is in fileBuf, baseUrl is the host part of webpage url
@@ -70,6 +71,11 @@ void printReadData(std::string data) {
 		pos = newPos;
 		Sleep(20000);
 	}
+}
+
+
+void dechunnkResponse(string response) {
+	
 }
 
 bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader) {
@@ -163,26 +169,33 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	std::string strHTML(socket.get_webpage_data());
 	int headerEndPos = strHTML.find("\r\n\r\n");
 
-	if (isRobot && code < 400 || code >= 500) {
+	if (isRobot && (code < 400 || code >= 500)) {
 		return false;
 	}
+	else if (isRobot)
+		return true;
 
-	if (isRobot == 0 && code == HTTP_STATUS_OK)
+	std::string strHeader = strHTML.substr(0, headerEndPos);
+	Utility utility;
+	if (utility.isItChunked(strHeader)) {
+		cout << "\t  Dechunking... ";
+	}
+	
+
+	if (code == HTTP_STATUS_OK)
 	{
 		startTime = timeGetTime();
 		cout << "\t+ Parsing page... ";
 		std::string response = strHTML.substr(headerEndPos + 4);
 		char *char_response = new char[response.length() + 1];
 		strcpy_s(char_response, response.size() + 1, response.c_str());
+		
 		int nLinks = getLinkCount(char_response, char_baseURL);
 
 		cout << "done in " << timeGetTime() - startTime << " ms with " << nLinks << " links" << endl;
 	}
-
-	//free(char_baseURL);
-
+	
 	if (isPrintHeader) {
-		std::string strHeader = strHTML.substr(0, headerEndPos);
 		cout << "\n\n--------------------------------------------------" << endl;
 		cout << strHeader << endl << endl << endl;
 	}

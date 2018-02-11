@@ -74,6 +74,58 @@ queue<string> Utility::split(std::string s, string delimiter) {
 	return q;
 }
 
+unsigned long Utility::HexToDec(char hex[]) {
+	char *hexstr;
+	int length = 0;
+	const int base = 16;     // Base of Hexadecimal Number
+	unsigned long decnum = 0;
+	int i;
+
+	// Now Find the length of Hexadecimal Number
+	for (hexstr = hex; *hexstr != '\0'; hexstr++) {
+		length++;
+	}
+
+	// Now Find Hexadecimal Number
+	hexstr = hex;
+	for (i = 0; *hexstr != '\0' && i < length; i++, hexstr++) {
+		// Compare *hexstr with ASCII values
+		if (*hexstr >= 48 && *hexstr <= 57) {  // is *hexstr Between 0-9
+			decnum += (((int)(*hexstr)) - 48) * pow(base, length - i - 1);
+		}
+		else if ((*hexstr >= 65 && *hexstr <= 70)) {  // is *hexstr Between A-F
+			decnum += (((int)(*hexstr)) - 55) * pow(base, length - i - 1);
+		}
+		else if (*hexstr >= 97 && *hexstr <= 102) {  // is *hexstr Between a-f
+			decnum += (((int)(*hexstr)) - 87) * pow(base, length - i - 1);
+		}
+		else {
+			std::cout << "Invalid Hexadecimal Number \n";
+
+		}
+	}
+	return decnum;
+}
+
+bool Utility::isItChunked(string header) {
+	string line;
+	const string chunked_ident_str = "Transfer-Encoding:  chunked";
+
+	int pos = 0;
+	string buff = "";
+	while (pos < header.length()) {
+		pos = header.find_first_of("\r\n");
+		line = header.substr(0, pos);
+
+		if (line.compare(chunked_ident_str) == 0)
+			return true;
+
+		pos += 2;
+		header = header.substr(pos);
+	}
+	return false;
+}
+
 void Utility::printURLList(vector<string> list) {
 	for (int i = 0; i < list.size(); i++)
 		cout << list.at(i) << endl;

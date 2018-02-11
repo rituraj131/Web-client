@@ -23,5 +23,9 @@
 #include<atomic>
 #include <condition_variable>
 #include <iomanip>
+#include<stdlib.h>
+#include<conio.h>
+#include<math.h>
+#include <sstream>
 
 using namespace std;		// if you're planning to use STL

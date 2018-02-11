@@ -52,7 +52,6 @@ void incrementHeaderCount(Stats &stats, string header) {
 void changeThreadCount(Stats &stats, int count) {
 	std::lock_guard<std::mutex> lk(mtx[7]);
 	stats.changeThreadCount(count);
-	//mtx.unlock();
 }
 
 int getActiveThreadCount(Stats &stats) {
@@ -180,7 +179,7 @@ void statsThreadFunc(Stats &stats) {
 	long lastDownloadSize = 0;
 	int lastPagesCount = 0;
 	while (!producerDone || !crawlerDone) {
-		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
+		/*hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
 		if (NULL == hTimer)
 		{
 			std::printf("CreateWaitableTimer failed (%d)\n", GetLastError());
@@ -195,8 +194,8 @@ void statsThreadFunc(Stats &stats) {
 		 
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 			std::printf("WaitForSingleObject failed (%d)\n", GetLastError());
-		else {
-			
+		else {*/
+		Sleep(2000);
 			long tempBytesCount = stats.getBytesRead();
 			float dataThisTime = (((float)tempBytesCount - (float)(lastDownloadSize)) * 8.0)/(2*1000000);
 			lastDownloadSize = tempBytesCount;
@@ -207,7 +206,7 @@ void statsThreadFunc(Stats &stats) {
 			printCurrStatistics(ref(stats), secCount, thisPagesCount/2, dataThisTime);
 			
 			secCount += 2;
-		}
+		//}
 	}
 	secCount -= 2;
 	printFinalStatistics(ref(stats), secCount);
@@ -278,6 +277,7 @@ bool finishMyCrawl(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 
 	if (read_state == -2 || read_state == -1 || read_state == 0)
 		return false;
+
 	incrementBytesRead(ref(stats), socket.get_data_size_inbytes());
 
 	char *status_code;
@@ -365,7 +365,7 @@ void crawlMyPage(Stats &stats, UrlParts urlParts) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (finishMyCrawl(ref(stats), robotSocket, urlParts, true, server) == 0)
+	if (finishMyCrawl(ref(stats), robotSocket, urlParts, true, server) == 0) // for robots.txt
 		return;
 
 	finishMyCrawl(ref(stats), mySocket, urlParts, false, server);
@@ -380,7 +380,6 @@ void printCurrStatistics(Stats &stats, int secCount, int thisPagesCount, float d
 		stats.getLinksCount());
 	std::printf("      *** crawling %3d pps @ %.1f Mbps\n", thisPagesCount, dataThisTime);
 }
-
 
 void printFinalStatistics(Stats &stats, int secCount) {
 	std::cout << endl;
