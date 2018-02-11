@@ -5,12 +5,13 @@
 #include "UrlValidator.h"
 #include "Utility.h"
 #include "PrevHost.h"
-#include "Crawler.h"
+#include "MySocket.h"
+#include "HTMLParserBase.h"
+#define HTTP_STATUS_OK 200
 
 class ThreadPool
 {
 public:
-	ThreadPool();
 	void letTheGameBegin(Stats &, int, string);
 };
 

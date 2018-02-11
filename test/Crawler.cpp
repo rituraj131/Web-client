@@ -1,7 +1,7 @@
 #include "Crawler.h"
-
+/*
 //static struct sockaddr_in server = { 0 };
-mutex mtx[10];
+std::mutex mtx[10];
 //static PrevHost prevHost;
 
 /*void incrementDNSCount(Stats &stats) {
@@ -44,7 +44,7 @@ void incrementHeaderCount(Stats &stats, string header) {
 	std::lock_guard<std::mutex> lk(mtx[6]);
 	stats.incrementHeaderCount(header);
 	//mtx.unlock();
-}*/
+}
 
 bool checkIPUniquenessCrawler(char *address, PrevHost prevHost) {
 	std::lock_guard<std::mutex> lk(mtx[7]);
@@ -142,7 +142,7 @@ bool crawlRealDeal(Stats &stats, Socket socket, UrlParts urlParts, bool isRobot,
 	strcpy_s(char_baseURL, baseURL.size() + 1, baseURL.c_str());
 	if (char_baseURL == NULL) { return false; }
 	//cout << "code: " << code << " isRobot: "<<isRobot<<endl;
-	if (isRobot && code < 400 || code >= 500) {
+	if (isRobot && (code < 400 || code >= 500)) {
 		return false;
 	}
 	else if (isRobot) {
@@ -229,3 +229,4 @@ void Crawler::crawl(Stats &stats, UrlParts urlParts, PrevHost prevHost) {
 
 	crawlRealDeal(ref(stats), mySocket, urlParts, false, server);
 }
+*/
