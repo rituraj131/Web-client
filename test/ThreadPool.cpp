@@ -11,7 +11,7 @@ static std::queue<std::string> urlQueue;
 void crawlerThreadFunc();
 void statsThreadFunc();
 void urlProducerThreadFunc(string);
-void crawlMyPage(UrlParts);
+void crawlMyPage(UrlParts, HTMLParserBase *);
 void printCurrStatistics(int, int, float);
 void printFinalStatistics(int);
 
@@ -132,6 +132,8 @@ void crawlerThreadFunc() {
 	Utility utility;
 	changeThreadCount(1);
 	string url;
+	HTMLParserBase *parser = new HTMLParserBase;
+
 	while (true) {
 		{
 			std::unique_lock<std::mutex> lk(mtx[18]);
@@ -158,11 +160,11 @@ void crawlerThreadFunc() {
 
 		incrementUniqueHostCount();
 
-		crawlMyPage(urlParts);
+		crawlMyPage(urlParts, parser);
 	}
 
 	changeThreadCount(-1);
-
+	delete(parser);
 	if(getActiveThreadCount() == 0)
 		crawlerDone = true;
 }
@@ -241,7 +243,7 @@ void urlProducerThreadFunc(string filename) {
 	cv.notify_all();
 }
 
-bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server) {
+bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server, HTMLParserBase *parser) {
 	if (!socket.socket_connect(server))
 		return false;
 
@@ -289,9 +291,8 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 	std::memcpy(status_code, versionHTTP, 4); //status code length 3 and one for '\0'
 	status_code[3] = '\0';
 
-	if (!isRobot) {
+	if (!isRobot)
 		incrementHeaderCount(status_code);
-	}
 
 	int code = atoi(status_code);
 
@@ -317,13 +318,20 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		std::string response = strHTML.substr(headerEndPos + 4);
 		char *char_response = new char[response.length() + 1];
 		strcpy_s(char_response, response.size() + 1, response.c_str());
-		int nLinks = getLinkCountInThePage(char_response, char_baseURL);
+
+		int nLinks;
+		char *linkBuffer = parser->Parse(char_response, strlen(char_response), char_baseURL, (int)strlen(char_baseURL), &nLinks);
+
+		// check for errors indicated by negative values
+		if (nLinks < 0) { nLinks = 0; }
+
+		//int nLinks = getLinkCountInThePage(char_response, char_baseURL);
 		
 		incrementLinksCount(nLinks);
 	}
 }
 
-void crawlMyPage(UrlParts urlParts) {
+void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
@@ -363,10 +371,10 @@ void crawlMyPage(UrlParts urlParts) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (finishMyCrawl(robotSocket, urlParts, true, server) == 0) // for robots.txt
+	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) // for robots.txt
 		return;
 
-	finishMyCrawl(mySocket, urlParts, false, server);
+	finishMyCrawl(mySocket, urlParts, false, server, parser);
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {

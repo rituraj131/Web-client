@@ -201,9 +201,6 @@
     <ClInclude Include="UrlValidator.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="winsock-test.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
