@@ -309,9 +309,8 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		return true;
 	}
 
+	incrementCrawledURLCount();
 	if (code == HTTP_STATUS_OK) {
-		incrementCrawledURLCount();
-
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
 
@@ -322,10 +321,7 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		int nLinks;
 		char *linkBuffer = parser->Parse(char_response, strlen(char_response), char_baseURL, (int)strlen(char_baseURL), &nLinks);
 
-		// check for errors indicated by negative values
 		if (nLinks < 0) { nLinks = 0; }
-
-		//int nLinks = getLinkCountInThePage(char_response, char_baseURL);
 		
 		incrementLinksCount(nLinks);
 	}
@@ -335,6 +331,7 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
+
 	struct sockaddr_in server = { 0 };
 	struct hostent *remote;
 	in_addr addr;
@@ -342,6 +339,7 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 
 	char *char_host = new char[urlParts.host.size() + 1];
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
+
 	DWORD IP = inet_addr(char_host);
 
 	if (IP == INADDR_NONE)
@@ -371,10 +369,15 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) // for robots.txt
+	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) { // for robots.txt
+		robotSocket.~Socket();
+		mySocket.~Socket();
 		return;
+	}
 
 	finishMyCrawl(mySocket, urlParts, false, server, parser);
+	robotSocket.~Socket();
+	mySocket.~Socket();
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {

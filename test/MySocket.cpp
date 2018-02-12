@@ -91,10 +91,8 @@ int Socket::socket_read(bool isRobot)
 				break;
 			}
 			if (bytes_recv == 0)
-			{
-				//cout << buf << endl;
-				return 1;           // normal completion 
-			}
+				return 1;           // normal completion
+
 			curPos += bytes_recv;               // adjust where the next recv goes 
 			if (allocatedSize - curPos < 512)
 			{
