@@ -94,7 +94,7 @@ void Stats::incrementHeaderCount(string header) {
 		headerOthers++;
 	else if (header.at(0) == '2')
 		header2XX++;
-	else if (header.at(0) == '2')
+	else if (header.at(0) == '3')
 		header3XX++;
 	else if (header.at(0) == '4')
 		header4XX++;

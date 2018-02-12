@@ -309,9 +309,9 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		return true;
 	}
 
-	incrementCrawledURLCount();
-
 	if (code == HTTP_STATUS_OK) {
+		incrementCrawledURLCount();
+
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
 
@@ -322,7 +322,10 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		int nLinks;
 		char *linkBuffer = parser->Parse(char_response, strlen(char_response), char_baseURL, (int)strlen(char_baseURL), &nLinks);
 
+		// check for errors indicated by negative values
 		if (nLinks < 0) { nLinks = 0; }
+
+		//int nLinks = getLinkCountInThePage(char_response, char_baseURL);
 		
 		incrementLinksCount(nLinks);
 	}
@@ -332,7 +335,6 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	Socket mySocket, robotSocket;
 	mySocket.socket_init();
 	robotSocket.socket_init();
-
 	struct sockaddr_in server = { 0 };
 	struct hostent *remote;
 	in_addr addr;
@@ -340,10 +342,7 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 
 	char *char_host = new char[urlParts.host.size() + 1];
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
-
 	DWORD IP = inet_addr(char_host);
-
-	incrementDNSCount();
 
 	if (IP == INADDR_NONE)
 	{
@@ -362,6 +361,8 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 		server.sin_addr.S_un.S_addr = IP;
 		address = char_host;
 	}
+
+	incrementDNSCount();
 	
 	if (checkIPUniqueness(address) == 0)
 		return;
@@ -371,15 +372,10 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 
-	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) { // for robots.txt
-		robotSocket.~Socket();
-		mySocket.~Socket();
+	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) // for robots.txt
 		return;
-	}
 
 	finishMyCrawl(mySocket, urlParts, false, server, parser);
-	robotSocket.~Socket();
-	mySocket.~Socket();
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {
@@ -402,8 +398,8 @@ void printFinalStatistics(int secCount) {
 		((float)stats.getDNSCount() / secCount));
 	std::printf("Downloaded %7d robots @ %.1f/s\n", stats.getRobotsPassedCount(),
 		((float)stats.getRobotsPassedCount() / secCount));
-	std::printf("Crawled %7d pages @ %.1f/s (%1.1f MB)\n", stats.getCrawledURLCount(),
-		((float)stats.getCrawledURLCount() / secCount), ((float)(stats.getBytesRead())) / (1000000));
+	std::printf("Crawled %7d pages @ %.1f/s\n", stats.getCrawledURLCount(),
+		((float)stats.getCrawledURLCount() / secCount));
 	std::printf("Parsed %7d links @ %.1f/s\n", stats.getLinksCount(),
 		((float)stats.getLinksCount() / secCount));
 	vector<int> headerList = stats.getHeaderCount();
