@@ -26,7 +26,13 @@ int main(int argc, char **argv) {
 		string threadStr(argv[1]), file_name(argv[2]);
 		Utility utility;
 		int thread_count = utility.getThreadCount(threadStr);
-		
+
+		if (!utility.validateFileExistence(file_name)) {
+			cout << "\n Invalid File Name\n";
+			exit(0);
+		}
+
+		cout << "Opened..\\" << file_name << " with size " << utility.filesize(file_name) << endl;
 		ThreadPool tPool = ThreadPool();
 		tPool.letTheGameBegin(thread_count, file_name);
 	}
