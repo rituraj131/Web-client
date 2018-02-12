@@ -310,6 +310,7 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 	}
 
 	incrementCrawledURLCount();
+
 	if (code == HTTP_STATUS_OK) {
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
@@ -342,6 +343,8 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 
 	DWORD IP = inet_addr(char_host);
 
+	incrementDNSCount();
+
 	if (IP == INADDR_NONE)
 	{
 		if ((remote = gethostbyname(char_host)) == NULL)
@@ -359,7 +362,6 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 		server.sin_addr.S_un.S_addr = IP;
 		address = char_host;
 	}
-	incrementDNSCount();
 	
 	if (checkIPUniqueness(address) == 0)
 		return;
@@ -400,8 +402,8 @@ void printFinalStatistics(int secCount) {
 		((float)stats.getDNSCount() / secCount));
 	std::printf("Downloaded %7d robots @ %.1f/s\n", stats.getRobotsPassedCount(),
 		((float)stats.getRobotsPassedCount() / secCount));
-	std::printf("Crawled %7d pages @ %.1f/s\n", stats.getCrawledURLCount(),
-		((float)stats.getCrawledURLCount() / secCount));
+	std::printf("Crawled %7d pages @ %.1f/s (%1.1f MB)\n", stats.getCrawledURLCount(),
+		((float)stats.getCrawledURLCount() / secCount), ((float)(stats.getBytesRead())) / (1000000));
 	std::printf("Parsed %7d links @ %.1f/s\n", stats.getLinksCount(),
 		((float)stats.getLinksCount() / secCount));
 	vector<int> headerList = stats.getHeaderCount();
