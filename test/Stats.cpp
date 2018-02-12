@@ -90,6 +90,7 @@ int Stats::getLinksCount() {
 }
 
 void Stats::incrementHeaderCount(string header) {
+	incrementCrawledURLCount();
 	if (header.length() == 0)
 		headerOthers++;
 	else if (header.at(0) == '2')

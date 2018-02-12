@@ -310,7 +310,7 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 	}
 
 	if (code == HTTP_STATUS_OK) {
-		incrementCrawledURLCount();
+		//incrementCrawledURLCount();
 
 		std::string strHTML(socket.get_webpage_data());
 		int headerEndPos = strHTML.find("\r\n\r\n");
@@ -324,8 +324,6 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 
 		// check for errors indicated by negative values
 		if (nLinks < 0) { nLinks = 0; }
-
-		//int nLinks = getLinkCountInThePage(char_response, char_baseURL);
 		
 		incrementLinksCount(nLinks);
 	}
