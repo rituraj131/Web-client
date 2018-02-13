@@ -71,6 +71,16 @@ void incrementUniqueHostCount() {
 	stats.incrementUniqueHostCount();
 }
 
+void incremenTamuHostCount(int count) {
+	std::lock_guard<std::mutex> lk(mtx[17]);
+	stats.incremenTamuHostCount(count);
+}
+
+void incremenTamuHostInsideCount(int count) {
+	std::lock_guard<std::mutex> lk(mtx[16]);
+	stats.incremenTamuHostInsideCount(count);
+}
+
 int getLinkCountInThePage(char *fileBuf, char *baseUrl)
 {
 	std::lock_guard<std::mutex> lk(mtx[16]);

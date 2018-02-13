@@ -30,5 +30,9 @@ public:
 	int getLinksCount();
 	void incrementHeaderCount(string);
 	vector<int> getHeaderCount();
+	void incremenTamuHostCount(int);
+	int getTamuHostCount();
+	void incremenTamuHostInsideCount(int count);
+	int getTamuHostInsideCount();
 };
 
