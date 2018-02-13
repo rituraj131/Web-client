@@ -433,6 +433,7 @@ void playWithLinks(char *links, int linkCount, UrlParts parentUrlParts) {
 		urlParts = urlValidator.urlParser(url, false);
 		if (utility.urlTAMUChecker(urlParts.host)) {
 			tamuHostCount++;
+			break;
 		}	
 		*(links +1);
 	}
