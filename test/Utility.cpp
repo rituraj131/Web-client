@@ -167,3 +167,11 @@ void Utility::printData(UrlParts urlParts) {
 	cout << "query: " << urlParts.query << endl;
 }
 
+bool Utility::urlTAMUChecker(string host) {
+	string tamu = "tamu.edu";
+	int pos = host.find(tamu);
+	if (host.length() == pos + tamu.length())
+		return true;
+	return false;
+}
+

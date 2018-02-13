@@ -22,5 +22,6 @@ public:
 	void printData(UrlParts urlParts);
 	bool Utility::isItChunked(string);
 	string dechunnkedBody(string body);
+	bool Utility::urlTAMUChecker(string);
 };
 

@@ -14,6 +14,7 @@ void urlProducerThreadFunc(string);
 void crawlMyPage(UrlParts, HTMLParserBase *);
 void printCurrStatistics(int, int, float);
 void printFinalStatistics(int);
+void playWithLinks(char *, int, UrlParts);
 
 void incrementDNSCount() {
 	std::lock_guard<std::mutex> lk(mtx[0]);
@@ -76,9 +77,9 @@ void incremenTamuHostCount(int count) {
 	stats.incremenTamuHostCount(count);
 }
 
-void incremenTamuHostInsideCount(int count) {
+void incremenTamuHostOutsideCount(int count) {
 	std::lock_guard<std::mutex> lk(mtx[16]);
-	stats.incremenTamuHostInsideCount(count);
+	stats.incremenTamuHostOutsideCount(count);
 }
 
 int getLinkCountInThePage(char *fileBuf, char *baseUrl)
@@ -336,6 +337,7 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 		if (nLinks < 0) { nLinks = 0; }
 		
 		incrementLinksCount(nLinks);
+		playWithLinks(linkBuffer, nLinks, urlParts);
 	}
 }
 
@@ -413,4 +415,30 @@ void printFinalStatistics(int secCount) {
 	vector<int> headerList = stats.getHeaderCount();
 	std::printf("HTTP codes: 2xx = %5d, 3xx = %5d, 4xx = %5d, 5xx = %5d, other = %5d\n",
 		headerList.at(0), headerList.at(1), headerList.at(2), headerList.at(3), headerList.at(4));
+
+	std::printf("\nTAMU Hyperlinks count: %d\n", stats.getTamuHostCount());
+	std::printf("TAMU Hyperlinks Originited Outside Count: %d\n\n", stats.getTamuHostOutsideCount());
+}
+
+void playWithLinks(char *links, int linkCount, UrlParts parentUrlParts) {
+	UrlValidator urlValidator;
+	UrlParts urlParts;
+	Utility utility;
+	int tamuHostCount = 0;
+	int tamuHostInsideCOunt = 0;
+	for (int i = 0; i < linkCount; i++) {
+		string url(links);
+		urlParts = urlValidator.urlParser(url, false);
+		if (utility.urlTAMUChecker(urlParts.host)) {
+			tamuHostCount++;
+		}	
+		*(links +1);
+	}
+
+	if (tamuHostCount > 0) {
+		incremenTamuHostCount(tamuHostCount);
+		
+		if (!utility.urlTAMUChecker(parentUrlParts.host))
+			incremenTamuHostOutsideCount(tamuHostCount);
+	}
 }

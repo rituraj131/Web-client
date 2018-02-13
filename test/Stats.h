@@ -4,7 +4,7 @@ class Stats
 {
 	std::atomic<int> activeThreadCount, extractedURLCount, uniqueHostCount,
 		dnsCount, uniqueIPCount, robotsPassedCount, crawledURLCount, linksCount;
-	std::atomic<int> tamuHostCount, tamuHostInsideCount;
+	std::atomic<int> tamuHostCount, tamuHostOutsideCount;
 	std::atomic<int> header2XX, header3XX, header4XX, header5XX, headerOthers;
 	std::atomic<long> bytesRead;
 
@@ -32,7 +32,7 @@ public:
 	vector<int> getHeaderCount();
 	void incremenTamuHostCount(int);
 	int getTamuHostCount();
-	void incremenTamuHostInsideCount(int count);
-	int getTamuHostInsideCount();
+	void incremenTamuHostOutsideCount(int count);
+	int getTamuHostOutsideCount();
 };
 

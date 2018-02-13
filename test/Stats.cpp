@@ -16,7 +16,7 @@ Stats::Stats() {
 	header5XX = 0;
 	headerOthers = 0;
 	tamuHostCount = 0;
-	tamuHostInsideCount = 0;
+	tamuHostOutsideCount = 0;
 }
 
 void Stats::incremenTamuHostCount(int count) {
@@ -27,12 +27,12 @@ int Stats::getTamuHostCount() {
 	return tamuHostCount;
 }
 
-void Stats::incremenTamuHostInsideCount(int count) {
-	tamuHostInsideCount += count;
+void Stats::incremenTamuHostOutsideCount(int count) {
+	tamuHostOutsideCount += count;
 }
 
-int Stats::getTamuHostInsideCount() {
-	return tamuHostInsideCount;
+int Stats::getTamuHostOutsideCount() {
+	return tamuHostOutsideCount;
 }
 
 void Stats::changeThreadCount(int count) {
