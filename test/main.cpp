@@ -10,7 +10,7 @@ bool done = false;
 int main(int argc, char **argv) {
 	if (argc == 2) {
 		std::string url(argv[1]);
-
+		cout << "URL: " << url << endl;
 		UrlValidator validate;
 		UrlParts urlParts = validate.urlParser(url, true);
 
