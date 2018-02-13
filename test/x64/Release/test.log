@@ -3,6 +3,15 @@ f:\visualstudio\csce612-hw1p3\test\UrlValidator.h(3): warning C4067: unexpected 
 GetAndParse.cpp(17): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 GetAndParse.cpp(69): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 GetAndParse.cpp(166): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  ThreadPool.cpp
+f:\visualstudio\csce612-hw1p3\test\UrlValidator.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+ThreadPool.cpp(92): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+ThreadPool.cpp(143): warning C4101: 'utility': unreferenced local variable
+ThreadPool.cpp(210): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+ThreadPool.cpp(327): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+ThreadPool.cpp(334): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+ThreadPool.cpp(392): warning C4477: 'printf' : format string '%6d' requires an argument of type 'int', but variadic argument 3 has type 'unsigned __int64'
+  ThreadPool.cpp(392): note: consider using '%zd' in the format string
   Generating code
   0 of 1081 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
