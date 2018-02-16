@@ -407,8 +407,8 @@ void printFinalStatistics(int secCount) {
 	std::printf("HTTP codes: 2xx = %5d, 3xx = %5d, 4xx = %5d, 5xx = %5d, other = %5d\n",
 		headerList.at(0), headerList.at(1), headerList.at(2), headerList.at(3), headerList.at(4));
 
-	std::printf("\nTAMU Hyperlinks count: %d\n", stats.getTamuHostCount());
-	std::printf("TAMU Hyperlinks Originited Outside Count: %d\n\n", stats.getTamuHostOutsideCount());
+	/*std::printf("\nTAMU Hyperlinks count: %d\n", stats.getTamuHostCount());
+	std::printf("TAMU Hyperlinks Originited Outside Count: %d\n\n", stats.getTamuHostOutsideCount());*/
 }
 
 void playWithLinks(char *links, int linkCount, UrlParts parentUrlParts) {
