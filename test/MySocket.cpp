@@ -63,7 +63,7 @@ int Socket::socket_read(bool isRobot)
 	timeout.tv_usec = 0;
 
 	DWORD startTime = timeGetTime();
-	//cout << endl;
+
 	while (true)
 	{
 		if (timeGetTime() - startTime >= 10000) {
@@ -103,9 +103,6 @@ int Socket::socket_read(bool isRobot)
 
 			if (isRobot == 0 && curPos > MAX_BUFF_SIZE_PAGE)
 				return 0;
-
-			//cout << "currPos: "<<curPos << endl;
-			//cout << "bytes_recv: "<<bytes_recv << endl;
 		}
 		else
 		{

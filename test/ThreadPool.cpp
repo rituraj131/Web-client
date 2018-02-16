@@ -181,17 +181,13 @@ void crawlerThreadFunc() {
 }
 
 void statsThreadFunc() {
-	HANDLE hTimer = NULL;
-	LARGE_INTEGER liDueTime;
-
-	liDueTime.QuadPart = -20000000LL;
-	int secCount = 2;
 	DWORD startTime = timeGetTime();
 	long lastDownloadSize = 0;
 	int lastPagesCount = 0;
 
 	while (!producerDone || !crawlerDone) {
 		Sleep(2000);
+
 		long tempBytesCount = stats.getBytesRead();
 		float dataThisTime = (((float)tempBytesCount - (float)(lastDownloadSize)) * 8.0)/(2*1000000);
 		lastDownloadSize = tempBytesCount;
@@ -202,9 +198,8 @@ void statsThreadFunc() {
 		DWORD currTime = timeGetTime();
 
 		printCurrStatistics((currTime - startTime)/1000, thisPagesCount/2, dataThisTime);
-		//secCount += 2;
 	}
-	//secCount -= 2;
+
 	printFinalStatistics(timeGetTime() - startTime);
 }
 
@@ -243,9 +238,9 @@ void urlProducerThreadFunc(string filename) {
 bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, HTMLParserBase *parser) {
 	Socket socket;
 	socket.socket_init();
-	if (!socket.socket_connect(server)) {
+
+	if (!socket.socket_connect(server))
 		return false;
-	}
 
 	char *req_body = new char[INITIAL_BUF_SIZE];
 
@@ -269,27 +264,21 @@ bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, H
 	strcpy_s(req_body, send_req.size() + 1, send_req.c_str());
 
 	bool iResult = socket.socket_send(req_body);
-	if (iResult == false) {
-		//cout << "send failed..." << endl;
+	if (iResult == false)
 		return false;
-	}
 
 	int read_state = socket.socket_read(isRobot);
 
-	if (read_state == -2 || read_state == -1 || read_state == 0) {
-		//cout << "read failed..." << read_state<<endl;
+	if (read_state == -2 || read_state == -1 || read_state == 0)
 		return false;
-	}
 
 	incrementBytesRead(socket.get_data_size_inbytes());
 
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
 
-	if (versionHTTP == NULL) {
-		//cout << "versionHTTP..." << versionHTTP << endl;
+	if (versionHTTP == NULL)
 		return false;
-	}
 
 	versionHTTP = (char *)(versionHTTP + 9); //after 9 position status code will be present
 	status_code = (char*)malloc(4);
@@ -332,7 +321,7 @@ bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, H
 		if (nLinks < 0) { nLinks = 0; }
 		
 		incrementLinksCount(nLinks);
-		//playWithLinks(linkBuffer, nLinks, urlParts);
+		playWithLinks(linkBuffer, nLinks, urlParts);
 	}
 }
 

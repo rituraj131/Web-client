@@ -135,7 +135,7 @@ bool justdoit(Socket socket, UrlParts urlParts, bool isRobot, bool isPrintHeader
 	}
 
 	cout << "done in " << timeGetTime() - startTime << " ms with " << socket.get_data_size_inbytes() << " bytes" << endl;
-	//if (!isRobot)printReadData(socket.get_webpage_data());
+	
 	cout << "\t  Verifying header... ";
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
