@@ -321,7 +321,7 @@ bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, H
 		if (nLinks < 0) { nLinks = 0; }
 		
 		incrementLinksCount(nLinks);
-		playWithLinks(linkBuffer, nLinks, urlParts);
+		//playWithLinks(linkBuffer, nLinks, urlParts);
 	}
 }
 
