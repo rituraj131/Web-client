@@ -186,40 +186,26 @@ void statsThreadFunc() {
 
 	liDueTime.QuadPart = -20000000LL;
 	int secCount = 2;
+	DWORD startTime = timeGetTime();
 	long lastDownloadSize = 0;
 	int lastPagesCount = 0;
-	while (!producerDone || !crawlerDone) {
-		/*hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-		if (NULL == hTimer)
-		{
-			std::printf("CreateWaitableTimer failed (%d)\n", GetLastError());
-			return;
-		}
 
-		if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
-		{
-			std::printf("SetWaitableTimer failed (%d)\n", GetLastError());
-			return;
-		}
-		 
-		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
-			std::printf("WaitForSingleObject failed (%d)\n", GetLastError());
-		else {*/
+	while (!producerDone || !crawlerDone) {
 		Sleep(2000);
-			long tempBytesCount = stats.getBytesRead();
-			float dataThisTime = (((float)tempBytesCount - (float)(lastDownloadSize)) * 8.0)/(2*1000000);
-			lastDownloadSize = tempBytesCount;
-			int tempRobotsPassedCount = stats.getRobotsPassedCount();
-			int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
-			lastPagesCount = tempRobotsPassedCount;
-			
-			printCurrStatistics(secCount, thisPagesCount/2, dataThisTime);
-			
-			secCount += 2;
-		//}
+		long tempBytesCount = stats.getBytesRead();
+		float dataThisTime = (((float)tempBytesCount - (float)(lastDownloadSize)) * 8.0)/(2*1000000);
+		lastDownloadSize = tempBytesCount;
+		int tempRobotsPassedCount = stats.getRobotsPassedCount();
+		int thisPagesCount = tempRobotsPassedCount - lastPagesCount;
+		lastPagesCount = tempRobotsPassedCount;
+		
+		DWORD currTime = timeGetTime();
+
+		printCurrStatistics((currTime - startTime)/1000, thisPagesCount/2, dataThisTime);
+		//secCount += 2;
 	}
-	secCount -= 2;
-	printFinalStatistics(secCount);
+	//secCount -= 2;
+	printFinalStatistics(timeGetTime() - startTime);
 }
 
 void urlProducerThreadFunc(string filename) {
@@ -351,20 +337,15 @@ bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, H
 }
 
 void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
-	//Socket mySocket, robotSocket;
-	//mySocket.socket_init();
-	//robotSocket.socket_init();
 	struct sockaddr_in server = { 0 };
 	struct hostent *remote;
 	in_addr addr;
 	char *address;
 
 	char *char_host = (char *)malloc(urlParts.host.size() + 1);
-		//new char[urlParts.host.size() + 1];
+
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
 	DWORD IP = inet_addr(char_host);
-
-	//incrementDNSCount();
 
 	if (IP == INADDR_NONE)
 	{
@@ -403,12 +384,19 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {
-	std::printf("[%3d] %4d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %4d\n",
+	int linkCount = stats.getLinksCount();
+	std::string strLinkCount;
+	if (linkCount > 1000)
+		strLinkCount = std::to_string(linkCount /= 1000) + "K";
+	else
+		strLinkCount = std::to_string(linkCount);
+
+	std::printf("[%3d] %4d Q %6d E %7d H %6d D %6d I %5d R %5d C %5d L %s\n",
 		secCount, stats.getActiveThreadCount(), urlQueue.size(),
 		stats.getExtractedURLCount(), stats.getUniqueHostCount(),
 		stats.getDNSCount(), stats.getUniqueIPCount(),
 		stats.getRobotsPassedCount(), stats.getCrawledURLCount(),
-		stats.getLinksCount());
+		strLinkCount);
 	std::printf("      *** crawling %3d pps @ %.1f Mbps\n", thisPagesCount, dataThisTime);
 }
 
