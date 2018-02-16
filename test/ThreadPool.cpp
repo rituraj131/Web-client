@@ -351,15 +351,16 @@ bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, H
 }
 
 void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
-	Socket mySocket, robotSocket;
-	mySocket.socket_init();
-	robotSocket.socket_init();
+	//Socket mySocket, robotSocket;
+	//mySocket.socket_init();
+	//robotSocket.socket_init();
 	struct sockaddr_in server = { 0 };
 	struct hostent *remote;
 	in_addr addr;
 	char *address;
 
-	char *char_host = new char[urlParts.host.size() + 1];
+	char *char_host = (char *)malloc(urlParts.host.size() + 1);
+		//new char[urlParts.host.size() + 1];
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
 	DWORD IP = inet_addr(char_host);
 
@@ -393,10 +394,12 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
 	
-	if (!finishMyCrawl(urlParts, true, server, parser)) // for robots.txt
-		return;
+	if (finishMyCrawl(urlParts, true, server, parser)) { // for robots.txt
+		finishMyCrawl(urlParts, false, server, parser);
+	}
 
-	finishMyCrawl(urlParts, false, server, parser);
+	free(char_host);
+	*address = NULL;
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {
