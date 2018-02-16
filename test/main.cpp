@@ -8,6 +8,14 @@
 bool done = false;
 
 int main(int argc, char **argv) {
+	WSADATA wsaData;
+
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+		cout << "WSAStartup failed with error : " << WSAGetLastError() << endl;
+		WSACleanup();
+		return 0;
+	}
+
 	if (argc == 2) {
 		std::string url(argv[1]);
 		cout << "URL: " << url << endl;
@@ -38,4 +46,7 @@ int main(int argc, char **argv) {
 		cout << "Wrong input!" << endl;
 	}
 	cout << endl;
+	WSACleanup();
+
+	return 0;
 }

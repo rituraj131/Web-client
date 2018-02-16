@@ -254,9 +254,12 @@ void urlProducerThreadFunc(string filename) {
 	cv.notify_all();
 }
 
-bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockaddr_in server, HTMLParserBase *parser) {
-	if (!socket.socket_connect(server))
+bool finishMyCrawl(UrlParts urlParts, bool isRobot, struct sockaddr_in server, HTMLParserBase *parser) {
+	Socket socket;
+	socket.socket_init();
+	if (!socket.socket_connect(server)) {
 		return false;
+	}
 
 	char *req_body = new char[INITIAL_BUF_SIZE];
 
@@ -280,21 +283,27 @@ bool finishMyCrawl(Socket socket, UrlParts urlParts, bool isRobot, struct sockad
 	strcpy_s(req_body, send_req.size() + 1, send_req.c_str());
 
 	bool iResult = socket.socket_send(req_body);
-	if (iResult == false)
+	if (iResult == false) {
+		//cout << "send failed..." << endl;
 		return false;
+	}
 
 	int read_state = socket.socket_read(isRobot);
 
-	if (read_state == -2 || read_state == -1 || read_state == 0)
+	if (read_state == -2 || read_state == -1 || read_state == 0) {
+		//cout << "read failed..." << read_state<<endl;
 		return false;
+	}
 
 	incrementBytesRead(socket.get_data_size_inbytes());
 
 	char *status_code;
 	char *versionHTTP = strstr(socket.get_webpage_data(), "HTTP/");
 
-	if (versionHTTP == NULL)
+	if (versionHTTP == NULL) {
+		//cout << "versionHTTP..." << versionHTTP << endl;
 		return false;
+	}
 
 	versionHTTP = (char *)(versionHTTP + 9); //after 9 position status code will be present
 	status_code = (char*)malloc(4);
@@ -354,7 +363,7 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 	strcpy_s(char_host, urlParts.host.size() + 1, urlParts.host.c_str());
 	DWORD IP = inet_addr(char_host);
 
-	incrementDNSCount();
+	//incrementDNSCount();
 
 	if (IP == INADDR_NONE)
 	{
@@ -374,7 +383,7 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 		address = char_host;
 	}
 
-	//incrementDNSCount();
+	incrementDNSCount();
 	
 	if (checkIPUniqueness(address) == 0)
 		return;
@@ -383,11 +392,11 @@ void crawlMyPage(UrlParts urlParts, HTMLParserBase *parser) {
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(urlParts.port_no);
-
-	if (finishMyCrawl(robotSocket, urlParts, true, server, parser) == 0) // for robots.txt
+	
+	if (!finishMyCrawl(urlParts, true, server, parser)) // for robots.txt
 		return;
 
-	finishMyCrawl(mySocket, urlParts, false, server, parser);
+	finishMyCrawl(urlParts, false, server, parser);
 }
 
 void printCurrStatistics(int secCount, int thisPagesCount, float dataThisTime) {

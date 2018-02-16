@@ -18,19 +18,11 @@ initialize socket
 */
 void Socket::socket_init()
 {
-	WSADATA wsaData;
-
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-		cout << "WSAStartup failed with error : " << WSAGetLastError() << endl;
-		WSACleanup();
-		return;
-	}
-
-	sock = socket(AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP);
+	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == INVALID_SOCKET)
 	{
 		cout << "socket failed with error: " << WSAGetLastError() << endl;
-		WSACleanup();
+		//WSACleanup();
 		return;
 	}
 }
@@ -52,7 +44,7 @@ get HTML content
 */
 char *Socket::get_webpage_data()
 {
-	buf[curPos] = '\0';
+	//buf[curPos] = '\0';
 	return buf;
 }
 
@@ -71,7 +63,7 @@ int Socket::socket_read(bool isRobot)
 	timeout.tv_usec = 0;
 
 	DWORD startTime = timeGetTime();
-
+	//cout << endl;
 	while (true)
 	{
 		if (timeGetTime() - startTime >= 10000) {
@@ -90,8 +82,10 @@ int Socket::socket_read(bool isRobot)
 			{
 				break;
 			}
-			if (bytes_recv == 0)
+			if (bytes_recv == 0) {
+				buf[curPos] = NULL;
 				return 1;           // normal completion
+			}
 
 			curPos += bytes_recv;               // adjust where the next recv goes 
 			if (allocatedSize - curPos < 512)
@@ -102,11 +96,6 @@ int Socket::socket_read(bool isRobot)
 				{
 					buf = nullCheck;
 				}
-				else
-				{
-					free(buf);
-					break;
-				}
 			}
 
 			if (isRobot == 1 && curPos > MAX_BUFF_SIZE_ROBOT)
@@ -114,6 +103,9 @@ int Socket::socket_read(bool isRobot)
 
 			if (isRobot == 0 && curPos > MAX_BUFF_SIZE_PAGE)
 				return 0;
+
+			//cout << "currPos: "<<curPos << endl;
+			//cout << "bytes_recv: "<<bytes_recv << endl;
 		}
 		else
 		{
@@ -140,7 +132,7 @@ bool Socket::socket_send(char *buf)
 	ret = send(sock, buf, strlen(buf), 0);
 	if (ret == SOCKET_ERROR) {
 		//printf("send failed: %d\n", WSAGetLastError());
-		WSACleanup();
+		//WSACleanup();
 		return false;
 	}
 	return true;
@@ -148,6 +140,6 @@ bool Socket::socket_send(char *buf)
 
 Socket::~Socket()
 {
-	//free(buf);
+	free(buf);
 	closesocket(this->sock);
 }
